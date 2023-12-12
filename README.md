@@ -1,4 +1,5 @@
-A Django-based web application focused on managing parking and electric vehicle charging for a small joint ownership company. It offers basic yet essential functionalities to streamline parking space allocation and manage charging stations efficiently.
+# Joint ownership manager
+The joint ownership manager (JOM) is a Django-based web application focused on managing parking and electric vehicle charging for a small joint ownership company. It offers basic yet essential functionalities to streamline parking space allocation and manage charging stations efficiently.
 
 ## Key Features
 
