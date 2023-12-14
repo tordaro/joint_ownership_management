@@ -33,5 +33,6 @@ exclude = ["migrations"]
 line-length = 150
 
 [tool.black]
-exclude = ["migrations"]
+exclude = "migrations"
 line-length = 150
+string-normalization = true
