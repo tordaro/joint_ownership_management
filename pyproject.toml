@@ -5,13 +5,14 @@ description = "Efficient Django-based solution for managing parking and EV charg
 authors = ["Tord Aronsen <tordaro@gmail.com>"]
 license = "GNU GPLv3"
 readme = "README.md"
-packages = [{include = "joint_ownership_management"}]
+packages = [{ include = "joint_ownership_management" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 Django = "^5.0"
 urllib3 = "^2.1.0"
 ipython = "^8.18.1"
+python-dotenv = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.12.0"
@@ -21,3 +22,15 @@ ruff = "^0.1.7"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+exclude = ["migrations"]
+ignore_missing_imports = true
+
+[tool.ruff]
+exclude = ["migrations"]
+line-length = 150
+
+[tool.black]
+exclude = ["migrations"]
+line-length = 150
