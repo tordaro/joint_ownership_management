@@ -1,9 +1,0 @@
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit</button>
-</form>
-
-{% if new_sessions %}
-    <p>{{ new_sessions }} new charging sessions added.</p>
-{% endif %}

@@ -1,8 +1,8 @@
 from django.urls import path
 
-from . import views
+from car_charging.views import history, index
 
 urlpatterns = [
-    path("", views.index, name="index"),
-    path("history", views.charge_history, name="history"),
+    path("", index, name="index"),
+    path("history", history.charge_history, name="history"),
 ]
