@@ -10,11 +10,12 @@ packages = [{ include = "joint_ownership_management" }]
 [tool.poetry.dependencies]
 python = "^3.11"
 Django = "^5.0"
-urllib3 = "^2.1.0"
 ipython = "^8.18.1"
 python-dotenv = "^1.0.0"
 psycopg2-binary = "^2.9.9"
 pytz = "^2023.3.post1"
+requests = "^2.31.0"
+certifi = "^2023.11.17"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.12.0"

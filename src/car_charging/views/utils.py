@@ -1,9 +1,8 @@
-import urllib3
+import requests
 from django.utils.timezone import datetime
-from urllib3.response import BaseHTTPResponse
 
 
-def request_charge_history(access_token: str, installation_id: str, from_date: datetime, to_date: datetime) -> BaseHTTPResponse:
+def request_charge_history(access_token: str, installation_id: str, from_date: datetime, to_date: datetime) -> requests.Response:
     """
     Request charge history from Zaptec API in given time interval.
     """
@@ -16,11 +15,9 @@ def request_charge_history(access_token: str, installation_id: str, from_date: d
         "From": from_date.strftime(datetime_format),
         "To": to_date.strftime(datetime_format),
     }
-    headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json-patch+json"}
+    headers = {"Authorization": f"Bearer {access_token}"}
 
-    http = urllib3.PoolManager()
-    response = http.request("GET", endpoint_url, headers=headers, fields=params)
-
+    response = requests.get(endpoint_url, headers=headers, params=params)
     return response
 
 
