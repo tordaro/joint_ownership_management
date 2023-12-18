@@ -1,18 +1,18 @@
 import os
 from django.shortcuts import render
+from django.http import HttpRequest, HttpResponse
 
 from car_charging.forms import DateRangeForm
-from car_charging.models import ChargingSession, EnergyDetails
+from car_charging.models import ChargingSession, EnergyDetails, ZaptecToken
 from .utils import request_charge_history, convert_datetime
 
 
-def charge_history(request):
-    is_form_submitted = "date_from" in request.GET
+def charge_history(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = DateRangeForm(request.POST)
         if form.is_valid():
-            access_token = os.getenv("ZAPTEC_TOKEN")
-            installation_id = os.getenv("INSTALLATION_ID")
+            access_token = ZaptecToken.objects.first().token
+            installation_id = os.getenv("INSTALLATION_ID", "")
             start_date = form.cleaned_data["start_date"]
             end_date = form.cleaned_data["end_date"]
             response = request_charge_history(access_token, installation_id, start_date, end_date)
@@ -54,9 +54,8 @@ def charge_history(request):
                     "new_sessions_count": len(new_sessions),
                     "form": form,
                     "data": data,
-                    "is_form_submitted": is_form_submitted,
                 },
             )
     else:
         form = DateRangeForm()
-    return render(request, "car_charging/history.html", {"form": form, "is_form_submitted": is_form_submitted})
+    return render(request, "car_charging/history.html", {"form": form})
