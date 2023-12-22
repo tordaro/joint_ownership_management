@@ -2,6 +2,7 @@ from django.urls import path
 
 from car_charging.views import history, index, auth_token
 
+app_name = "charging"
 
 urlpatterns = [
     path("", index, name="index"),
