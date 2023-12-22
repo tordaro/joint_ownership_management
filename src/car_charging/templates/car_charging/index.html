@@ -19,8 +19,8 @@
         <p class="text-center">This is the index view.</p>
         <p class="text-center">Current time: {% now "H:i:s" %}</p>
         <div class="text-center mt-3">
-            <a href="{% url 'history' %}" class="btn btn-primary">Request charging history</a>
-            <a href="{% url 'token_status' %}" class="btn btn-primary">Check token status</a>
+            <a href="{% url 'charging:history' %}" class="btn btn-primary">Request charging history</a>
+            <a href="{% url 'charging:token_status' %}" class="btn btn-primary">Check token status</a>
         </div>
     </div>
 </body>

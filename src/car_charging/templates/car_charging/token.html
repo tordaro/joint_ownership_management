@@ -22,7 +22,7 @@
             <p class="text-center text-success">The current token is not expired.</p>
         {% endif %}
         <div class="text-center mt-3">
-            <form method="post" action="{% url 'renew_token' %}">
+            <form method="post" action="{% url 'charging:renew_token' %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary">Renew Token</button>
             </form>
