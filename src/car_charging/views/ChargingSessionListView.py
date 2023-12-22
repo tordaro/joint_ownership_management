@@ -4,6 +4,6 @@ from car_charging.models import ChargingSession
 
 class ChargingSessionListView(ListView):
     model = ChargingSession
-    paginate_by = 10
+    paginate_by = 15
     template_name = "car_charging/session_list.html"
     context_object_name = "sessions"
