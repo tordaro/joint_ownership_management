@@ -20,6 +20,7 @@ class DateRangeForm(forms.Form):
         end_date = cleaned_data.get("end_date")
         today = datetime.today().date()
 
+        # TODO: Test this
         if start_date and end_date:
             if start_date > end_date:
                 raise forms.ValidationError(_("Start date cannot be later than end date."))
