@@ -43,7 +43,7 @@ class ChargeHistoryView(FormView):
     form_class = DateRangeForm
     success_url = reverse_lazy("charging:session_list")
 
-    def form_valid(self, form):
+    def form_valid(self, form: Form):
         data = self.get_charge_history_data(form)
         new_sessions = self.create_charging_sessions(data)
 
@@ -52,12 +52,13 @@ class ChargeHistoryView(FormView):
             return render(self.request, self.template_name, {"form": form})
         elif not new_sessions:
             messages.info(self.request, "Data retrieved but no new sessions created.")
+            self.request.session["no_new_sessions"] = True
             return render(self.request, self.template_name, {"form": form})
         else:
             messages.success(self.request, f"{len(new_sessions)} new charging sessions created.")
             return super().form_valid(form)
 
-    def form_invalid(self, form):
+    def form_invalid(self, form: Form):
         return super().form_invalid(form)
 
     @staticmethod
