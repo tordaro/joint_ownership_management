@@ -31,6 +31,7 @@
                     <tr>
                         <th>Session ID</th>
                         <th>User</th>
+                        <th>Energy [kWh]</th>
                         <th>Start time</th>
                         <th>End time</th>
                     </tr>
@@ -40,6 +41,7 @@
                     <tr>
                         <td>{{ session.id }}</td>
                         <td>{{ session.user_full_name }}</td>
+                        <td>{{ session.energy }}</td>
                         <td>{{ session.start_date_time }}</td>
                         <td>{{ session.end_date_time }}</td>
                     </tr>
@@ -49,7 +51,7 @@
         </div>
     {% endif %}
 
-    {% if not new_sessions_count and form.is_valid %}
+    {% if not new_sessions %}
         <div class="alert alert-info mt-5" role="alert">
             No new charging sessions were added during the selected period.
         </div>

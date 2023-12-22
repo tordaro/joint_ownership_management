@@ -15,6 +15,7 @@ class EnergyDetails(models.Model):
 
     class Meta:
         db_table = "energy_details"
+        unique_together = ["charging_session", "timestamp"]
         ordering = ["timestamp"]
         verbose_name = _("Energy Detail")
         verbose_name_plural = _("Energy Details")
