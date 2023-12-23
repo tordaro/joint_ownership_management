@@ -1,61 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #343a40;
-            color: #fff;
-        }
-        .container {
-            max-width: 600px;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <form method="post" class="form-container mt-5">
+{% extends 'car_charging/base.html' %}
+
+{% block title %}Charge History{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Charge History</h1>
+    <form method="post" class="mb-3">
         {% csrf_token %}
-        <h2 class="text-center">Enter a time period to fetch charging sessions:</h2>
         {{ form.as_p }}
-        <div class="text-center">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
-
-    {% if new_sessions%}
-        <div class="sessions-container mt-5">
-            <h2 class="text-center">{{ new_sessions_count }} new charging sessions added during the selected period:</h2>
-            <table class="table table-dark table-striped mt-3">
-                <thead>
-                    <tr>
-                        <th>Session ID</th>
-                        <th>User</th>
-                        <th>Energy [kWh]</th>
-                        <th>Start time</th>
-                        <th>End time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for session in new_sessions %}
-                    <tr>
-                        <td>{{ session.id }}</td>
-                        <td>{{ session.user_full_name }}</td>
-                        <td>{{ session.energy }}</td>
-                        <td>{{ session.start_date_time }}</td>
-                        <td>{{ session.end_date_time }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    {% if new_sessions %}
+        <div class="alert alert-success" role="alert">
+            {{ new_sessions_count }} new charging sessions added during the selected period.
         </div>
     {% endif %}
-
-    {% if not new_sessions %}
-        <div class="alert alert-info mt-5" role="alert">
-            No new charging sessions were added during the selected period.
+    {% if request.session.no_new_sessions %}
+        <div class="alert alert-info" role="alert">
+            No new sessions added.
         </div>
     {% endif %}
-</div>
-</body>
-</html>
+{% endblock %}

@@ -1,5 +1,7 @@
 from .index import index
-from .history import charge_history
+from .history import ChargeHistoryView
 from .auth_token import request_token, renew_token
+from .ChargingSessionListView import ChargingSessionListView
+from .EnergyDetailsListView import EnergyDetailsListView
 
-__all__ = ["index", "charge_history", "request_token", "renew_token"]
+__all__ = ["index", "ChargeHistoryView", "request_token", "renew_token", "ChargingSessionListView", "EnergyDetailsListView"]

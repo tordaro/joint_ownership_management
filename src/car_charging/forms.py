@@ -13,3 +13,16 @@ class DateRangeForm(forms.Form):
         thirty_days_ago = today - timedelta(days=30)
         self.fields["start_date"].initial = thirty_days_ago
         self.fields["end_date"].initial = today
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+        today = datetime.today().date()
+
+        # TODO: Test this
+        if start_date and end_date:
+            if start_date > end_date:
+                raise forms.ValidationError(_("Start date cannot be later than end date."))
+            if start_date > today:
+                raise forms.ValidationError(_("Start date cannot be later than today's date."))

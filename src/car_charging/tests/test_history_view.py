@@ -4,9 +4,8 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils.timezone import datetime
 from unittest.mock import patch
-from car_charging.views.history import get_charge_history_data, create_charging_sessions, convert_datetime, charge_history
-from car_charging.models import ZaptecToken, ChargingSession, EnergyDetails
-from car_charging.forms import DateRangeForm
+from car_charging.views.history import convert_datetime, ChargeHistoryView
+from car_charging.models import ZaptecToken
 
 
 class TestChargingHistoryView(TestCase):
@@ -51,7 +50,7 @@ class TestChargingHistoryView(TestCase):
         )
 
     def test_create_charging_sessions(self):
-        result = create_charging_sessions(self.data)
+        result = ChargeHistoryView.create_charging_sessions(self.data)
 
         session = result[0]
         self.assertEqual(len(result), 1)
@@ -73,7 +72,7 @@ class TestChargingHistoryView(TestCase):
         response = client.get(reverse("charging:history"))
         self.assertEqual(response.status_code, 200)
 
-    @patch("car_charging.views.history.get_charge_history_data")
+    @patch("car_charging.views.history.ChargeHistoryView.get_charge_history_data")
     def test_charge_history_post(self, mock_get_charge_history_data):
         mock_get_charge_history_data.return_value = self.data
         form_data = {
@@ -81,7 +80,8 @@ class TestChargingHistoryView(TestCase):
             "end_date": "2022-01-31",
         }
         response = self.client.post(reverse("charging:history"), data=form_data)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, expected_url=reverse("charging:session_list"), status_code=302, target_status_code=200)
 
     def test_convert_datetime_floating_point(self):
         datetime_string = "2022-01-01T00:00:00.00000+00:00"
