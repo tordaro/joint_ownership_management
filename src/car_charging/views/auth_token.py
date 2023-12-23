@@ -1,19 +1,10 @@
 import os
-import requests
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest
 from django.views.decorators.http import require_POST
 
+from car_charging.zaptec_services import request_token
 from car_charging.models import ZaptecToken
-
-
-def request_token(username: str, password: str) -> requests.Response:
-    url = "https://api.zaptec.com/oauth/token"
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    data = {"grant_type": "password", "username": username, "password": password}
-
-    response = requests.post(url, data=data, headers=headers)
-    return response
 
 
 def token_status(request: HttpRequest) -> HttpResponse:
