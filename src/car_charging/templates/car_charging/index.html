@@ -1,27 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Car Charging</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #343a40;
-            color: #fff;
-        }
-        .container {
-            max-width: 600px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1 class="text-center mt-5">Welcome to Car Charging</h1>
-        <p class="text-center">This is the index view.</p>
-        <p class="text-center">Current time: {% now "H:i:s" %}</p>
-        <div class="text-center mt-3">
-            <a href="{% url 'charging:history' %}" class="btn btn-primary">Request charging history</a>
-            <a href="{% url 'charging:token_status' %}" class="btn btn-primary">Check token status</a>
+{% extends 'car_charging/base.html' %}
+
+{% block content %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="text-center mb-4">Welcome to Car Charging</h1>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">Navigate to any of the following pages:</h5>
+                        <ul class="list-group list-group-flush mt-3">
+                            <li class="list-group-item">
+                                <a href="{% url 'charging:history' %}" class="btn btn-info w-100 mt-2">Fetch charging sessions</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="{% url 'charging:token_status' %}" class="btn btn-info w-100 mt-2">Token Status</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="{% url 'charging:session_list' %}" class="btn btn-info w-100 mt-2">Charging sessions</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="{% url 'charging:energy_detail_list' %}" class="btn btn-info w-100 mt-2">Energy details</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}
