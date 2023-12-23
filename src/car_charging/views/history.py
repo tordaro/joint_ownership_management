@@ -1,5 +1,4 @@
 import os
-import requests
 from django.forms import Form
 from django.urls import reverse_lazy
 from django.shortcuts import render
@@ -7,6 +6,7 @@ from django.contrib import messages
 from django.views.generic.edit import FormView
 from django.utils.timezone import datetime
 
+from car_charging.zaptec_services import request_charge_history, renew_token
 from car_charging.forms import DateRangeForm
 from car_charging.models import ChargingSession, EnergyDetails, ZaptecToken
 
@@ -17,25 +17,6 @@ def convert_datetime(datetime_string):
     else:
         dt = datetime.strptime(datetime_string, "%Y-%m-%dT%H:%M:%S%z")
     return dt
-
-
-def request_charge_history(access_token: str, installation_id: str, from_date: datetime, to_date: datetime) -> requests.Response:
-    """
-    Request charge history from Zaptec API in given time interval.
-    """
-    datetime_format = "%Y-%m-%dT%H:%M:%S.%f%z"
-    endpoint_url = "https://api.zaptec.com/api/chargehistory"
-    params = {
-        "InstallationId": installation_id,
-        "GroupBy": "2",
-        "DetailLevel": "1",
-        "From": from_date.strftime(datetime_format),
-        "To": to_date.strftime(datetime_format),
-    }
-    headers = {"Authorization": f"Bearer {access_token}"}
-
-    response = requests.get(endpoint_url, headers=headers, params=params)
-    return response
 
 
 class ChargeHistoryView(FormView):
@@ -63,7 +44,13 @@ class ChargeHistoryView(FormView):
 
     @staticmethod
     def get_charge_history_data(form: Form) -> list[dict]:
-        access_token = ZaptecToken.objects.first().token
+        zaptec_token = ZaptecToken.objects.first()
+        if not zaptec_token or zaptec_token.is_token_expired():
+            # TODO: Test this when zaptec_token is None
+            username = os.getenv("ZAPTEC_USERNAME", "")
+            password = os.getenv("ZAPTEC_PASSWORD", "")
+            zaptec_token = renew_token(username, password)
+        access_token = zaptec_token.token
         installation_id = os.getenv("INSTALLATION_ID", "")
         start_date = form.cleaned_data["start_date"]
         end_date = form.cleaned_data["end_date"]

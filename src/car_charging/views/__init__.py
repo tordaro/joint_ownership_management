@@ -1,6 +1,6 @@
 from .index import index
 from .history import ChargeHistoryView
-from .auth_token import request_token, renew_token
+from .auth_token import renew_token
 from .ChargingSessionListView import ChargingSessionListView
 from .EnergyDetailsListView import EnergyDetailsListView
 
