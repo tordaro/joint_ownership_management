@@ -5,11 +5,11 @@ from django.utils.translation import gettext_lazy as _
 class SpotPrices(models.Model):
     """Model definition for electric spot prices in all price areas."""
 
-    no1 = models.DecimalField(_("Spot price area 1"), max_digits=10, decimal_places=7, blank=True, null=True)
-    no2 = models.DecimalField(_("Spot price area 2"), max_digits=10, decimal_places=7, blank=True, null=True)
-    no3 = models.DecimalField(_("Spot price area 3"), max_digits=10, decimal_places=7, blank=True, null=True)
-    no4 = models.DecimalField(_("Spot price area 4"), max_digits=10, decimal_places=7, blank=True, null=True)
-    no5 = models.DecimalField(_("Spot price area 5"), max_digits=10, decimal_places=7, blank=True, null=True)
+    no1 = models.DecimalField(_("Price area 1"), max_digits=10, decimal_places=7, blank=True, null=True)
+    no2 = models.DecimalField(_("Price area 2"), max_digits=10, decimal_places=7, blank=True, null=True)
+    no3 = models.DecimalField(_("Price area 3"), max_digits=10, decimal_places=7, blank=True, null=True)
+    no4 = models.DecimalField(_("Price area 4"), max_digits=10, decimal_places=7, blank=True, null=True)
+    no5 = models.DecimalField(_("Price area 5"), max_digits=10, decimal_places=7, blank=True, null=True)
     start_time = models.DateTimeField(_("Start time"))
     end_time = models.DateTimeField(_("End time"))
 
