@@ -32,6 +32,7 @@ def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> float:
     Get daily prices from the database if they exist, otherwise request them from Hvakosterstrommen API.
     """
     price_area_name = f"no{price_area}"
+    time_stamp = time_stamp.replace(minute=0, second=0, microsecond=0)  # Prices are given hourly
     try:
         spot_price = SpotPrices.objects.get(start_time=time_stamp)
         return getattr(spot_price, price_area_name)

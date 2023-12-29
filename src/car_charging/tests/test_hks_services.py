@@ -51,7 +51,7 @@ class TestSpotPrices(TestCase):
                 "time_end": "2023-12-27T03:00:00+01:00",
             },
         ]
-        time_stamp = make_aware(datetime(year=2023, month=12, day=27, hour=1, minute=0))
+        time_stamp = make_aware(datetime(year=2023, month=12, day=27, hour=1, minute=30))
         price = get_or_request_daily_prices(time_stamp, self.price_area)
         self.assertAlmostEqual(price, Decimal(0.25573), places=6)
 
