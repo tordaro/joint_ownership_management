@@ -5,11 +5,20 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Django",
+      "name": "Runserver",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/src/manage.py",
       "args": ["runserver"],
+      "django": true,
+      "justMyCode": true
+    },
+    {
+      "name": "Test",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/manage.py",
+      "args": ["test", "src/car_charging/tests/"],
       "django": true,
       "justMyCode": true
     }
