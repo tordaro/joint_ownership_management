@@ -1,5 +1,5 @@
 import requests
-from django.utils.timezone import datetime
+from django.utils.timezone import datetime, timedelta
 from django.utils.dateparse import parse_datetime
 from car_charging.models import SpotPrices
 
@@ -50,3 +50,39 @@ def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> float:
             return getattr(spot_price, price_area_name)
         else:
             raise SpotPriceRequestFailed(time_stamp, price_area, response.status_code)
+
+
+def set_spot_prices(date: datetime, price_area: int):
+    response = request_spot_prices(date, price_area)
+    if response.status_code == 200:
+        price_data = response.json()
+        for hourly_price in price_data:
+            SpotPrices.objects.update_or_create(
+                start_time=parse_datetime(hourly_price.get("time_start")),
+                defaults={
+                    "end_time": parse_datetime(hourly_price.get("time_end")),
+                    **{f"no{price_area}": hourly_price.get("NOK_per_kWh")},
+                },
+            )
+    else:
+        raise SpotPriceRequestFailed(date.date(), price_area, response.status_code)
+
+
+def populate_missing_spot_prices(start_date: datetime, end_date: datetime, price_area: int):
+    populated_dates = []
+    current_date = start_date
+
+    while current_date <= end_date:
+        if (
+            not SpotPrices.objects.filter(start_time__date=current_date).exists()
+            or SpotPrices.objects.filter(start_time__date=current_date, **{f"no{price_area}__isnull": True}).exists()
+        ):
+            try:
+                set_spot_prices(current_date, price_area)
+                populated_dates.append(current_date.date())
+            except SpotPriceRequestFailed as e:
+                print(e)  # Handle the exception as needed
+
+        current_date += timedelta(days=1)
+
+    return populated_dates
