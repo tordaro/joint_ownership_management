@@ -10,7 +10,7 @@ class SpotPrices(models.Model):
     no3 = models.DecimalField(_("Price area 3"), max_digits=10, decimal_places=7, blank=True, null=True)
     no4 = models.DecimalField(_("Price area 4"), max_digits=10, decimal_places=7, blank=True, null=True)
     no5 = models.DecimalField(_("Price area 5"), max_digits=10, decimal_places=7, blank=True, null=True)
-    start_time = models.DateTimeField(_("Start time"))
+    start_time = models.DateTimeField(_("Start time"), unique=True)
     end_time = models.DateTimeField(_("End time"))
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))

@@ -16,7 +16,7 @@ class EnergyDetailsAdmin(admin.ModelAdmin):
 
 class SpotPricesAdmin(admin.ModelAdmin):
     list_display = ("id", "no1", "no2", "no3", "no4", "no5", "start_time")
-    list_filter = ("no1", "no2", "no3", "no4", "no5", "start_time", "created_at")
+    list_filter = ("start_time", "created_at")
 
 
 admin.site.register(ChargingSession, ChargingSessionAdmin)
