@@ -22,6 +22,7 @@ types-requests = "^2.31.0.10"
 black = "^23.12.0"
 mypy = "^1.7.1"
 ruff = "^0.1.7"
+pytest = "^7.4.4"
 
 [build-system]
 requires = ["poetry-core"]
@@ -39,3 +40,7 @@ line-length = 150
 exclude = "migrations"
 line-length = 150
 string-normalization = true
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "jom.settings"
+python_files = ["test_*.py", "*_test.py"]
