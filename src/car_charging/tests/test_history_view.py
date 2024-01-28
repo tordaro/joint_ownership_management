@@ -2,9 +2,9 @@ import uuid
 import pytz
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.utils.timezone import datetime
+from django.utils.timezone import datetime, make_aware
 from unittest.mock import patch
-from car_charging.views.history import convert_datetime, ChargeHistoryView
+from car_charging.views.history import parse_zaptec_datetime, ChargeHistoryView
 from car_charging.models import ZaptecToken
 
 
@@ -23,11 +23,11 @@ class TestChargingHistoryView(TestCase):
                 "CommitMetadata": 5,
                 "DeviceId": str(self.device_id),
                 "DeviceName": "test_device_name",
-                "EndDateTime": "2022-01-01T00:00:00",
                 "Energy": 100.000,
                 "ExternallyEnded": False,
                 "Id": str(self.session_id),
-                "StartDateTime": "2022-01-01T00:00:00",
+                "StartDateTime": "2022-01-01T01:00:00",
+                "EndDateTime": "2022-01-01T08:00:00",
                 "UserEmail": "test@example.com",
                 "UserFullName": "Test User",
                 "UserId": str(self.user_id),
@@ -35,11 +35,11 @@ class TestChargingHistoryView(TestCase):
                 "EnergyDetails": [
                     {
                         "Energy": 50,
-                        "Timestamp": "2022-01-01T00:00:00+00:00",
+                        "Timestamp": "2022-01-01T01:00:00+00:00",
                     },
                     {
-                        "Energy": 50,
-                        "Timestamp": "2022-01-01T00:30:00+00:00",
+                        "Energy": 40,
+                        "Timestamp": "2022-01-01T01:30:00+00:00",
                     },
                 ],
             },
@@ -51,8 +51,9 @@ class TestChargingHistoryView(TestCase):
 
     def test_create_charging_sessions(self):
         result = ChargeHistoryView.create_charging_sessions(self.data)
-
         session = result[0]
+        energy_details = session.energydetails_set.all()
+
         self.assertEqual(len(result), 1)
         self.assertEqual(session.charger_id, str(self.charger_id))
         self.assertEqual(session.commit_metadata, 5)
@@ -63,9 +64,16 @@ class TestChargingHistoryView(TestCase):
         self.assertEqual(session.session_id, str(self.session_id))
         self.assertEqual(session.user_email, "test@example.com")
         self.assertEqual(session.user_full_name, "Test User")
+        self.assertEqual(session.start_date_time, make_aware(datetime(2022, 1, 1, 2, 0, 0)))
+        self.assertEqual(session.end_date_time, make_aware(datetime(2022, 1, 1, 9, 0, 0)))
+        self.assertEqual(session.commit_end_date_time, make_aware(datetime(2022, 1, 1, 1, 0, 0)))
         self.assertEqual(session.user_id, str(self.user_id))
         self.assertEqual(session.user_name, "test_user")
-        self.assertEqual(session.energydetails_set.count(), 2)
+        self.assertEqual(energy_details.count(), 2)
+        self.assertEqual(energy_details[0].energy, 50)
+        self.assertEqual(energy_details[0].timestamp, make_aware(datetime(2022, 1, 1, 2, 0, 0)))
+        self.assertEqual(energy_details[1].energy, 40)
+        self.assertEqual(energy_details[1].timestamp, make_aware(datetime(2022, 1, 1, 2, 30, 0)))
 
     def test_charge_history_get(self):
         client = Client()
@@ -83,18 +91,18 @@ class TestChargingHistoryView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, expected_url=reverse("charging:session_list"), status_code=302, target_status_code=200)
 
-    def test_convert_datetime_floating_point(self):
+    def test_parse_zaptec_datetime_floating_point(self):
         datetime_string = "2022-01-01T00:00:00.00000+00:00"
         expected_result = datetime(2022, 1, 1, tzinfo=pytz.utc)
 
-        result = convert_datetime(datetime_string)
+        result = parse_zaptec_datetime(datetime_string)
 
         self.assertEqual(result, expected_result)
 
-    def test_convert_datetime_not_floating_point(self):
+    def test_parse_zaptec_datetime_not_floating_point(self):
         datetime_string = "2022-01-01T00:00:00+00:00"
         expected_result = datetime(2022, 1, 1, tzinfo=pytz.utc)
 
-        result = convert_datetime(datetime_string)
+        result = parse_zaptec_datetime(datetime_string)
 
         self.assertEqual(result, expected_result)
