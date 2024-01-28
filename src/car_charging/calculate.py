@@ -10,7 +10,7 @@ def get_spot_prices(from_date: datetime, to_date: datetime, price_area: int) -> 
 
     spot_price_map = {}
     for price in spot_prices:
-        spot_price_map[price.hour] = getattr(price, price_area_name)
+        spot_price_map[price.start_time] = getattr(price, price_area_name)
 
     return spot_price_map
 
