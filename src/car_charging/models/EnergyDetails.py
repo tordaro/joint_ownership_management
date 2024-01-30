@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import datetime
 from django.utils.translation import gettext_lazy as _
 
 
@@ -17,6 +18,10 @@ class EnergyDetails(models.Model):
             return self.spot_price.get_price(self.charging_session.price_area)
         else:
             return None
+
+    def get_hour(self) -> datetime:
+        """Get the hour for the given timestamp."""
+        return self.timestamp.replace(minute=0, second=0, microsecond=0)
 
     def __str__(self):
         return str(self.id)
