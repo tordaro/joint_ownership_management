@@ -4,19 +4,19 @@ from django.urls import reverse_lazy
 from django.shortcuts import render
 from django.contrib import messages
 from django.views.generic.edit import FormView
-from django.utils.timezone import datetime
+from django.utils.timezone import datetime, localtime
 
 from car_charging.zaptec_services import request_charge_history, renew_token
 from car_charging.forms import DateRangeForm
 from car_charging.models import ChargingSession, EnergyDetails, ZaptecToken
 
 
-def convert_datetime(datetime_string):
+def parse_zaptec_datetime(datetime_string):
     if "." in datetime_string:
         dt = datetime.strptime(datetime_string, "%Y-%m-%dT%H:%M:%S.%f%z")
     else:
         dt = datetime.strptime(datetime_string, "%Y-%m-%dT%H:%M:%S%z")
-    return dt
+    return localtime(dt)
 
 
 class ChargeHistoryView(FormView):
@@ -44,6 +44,9 @@ class ChargeHistoryView(FormView):
 
     @staticmethod
     def get_charge_history_data(form: Form) -> list[dict]:
+        """
+        Get charge history data from Zaptec API.
+        """
         zaptec_token = ZaptecToken.objects.first()
         if not zaptec_token or zaptec_token.is_token_expired():
             # TODO: Test this when zaptec_token is None
@@ -58,11 +61,17 @@ class ChargeHistoryView(FormView):
         return response.json()["Data"]
 
     @staticmethod
-    def create_charging_sessions(data: list[dict]) -> list[ChargingSession]:
+    def create_charging_sessions(api_data: list[dict]) -> list[ChargingSession]:
+        """
+        Create new ChargingSession and EnergyDetails objects from the given API data.
+        All timestamps are UTC+0, but the session timestamps are naive and the energy details are time aware.
+        """
         new_sessions = []
-        for session_data in data:
+        for session_data in api_data:
             commit_end_date_time = session_data.get("CommitEndDateTime", None)
-            commit_end_date_time = commit_end_date_time + "+00:00" if commit_end_date_time else None
+            if commit_end_date_time:
+                commit_end_date_time = parse_zaptec_datetime(commit_end_date_time + "+00:00")  # Naive UTC+0 datetime
+
             session, is_created = ChargingSession.objects.get_or_create(
                 session_id=session_data["Id"],
                 defaults={
@@ -71,8 +80,8 @@ class ChargeHistoryView(FormView):
                     "user_name": session_data.get("UserName", ""),
                     "user_email": session_data.get("UserEmail", ""),
                     "device_id": session_data["DeviceId"],
-                    "start_date_time": convert_datetime(session_data["StartDateTime"] + "+00:00"),
-                    "end_date_time": convert_datetime(session_data["EndDateTime"] + "+00:00"),
+                    "start_date_time": parse_zaptec_datetime(session_data["StartDateTime"] + "+00:00"),  # Naive UTC+0 datetime
+                    "end_date_time": parse_zaptec_datetime(session_data["EndDateTime"] + "+00:00"),  # Naive UTC+0 datetime
                     "energy": session_data["Energy"],
                     "commit_metadata": session_data.get("CommitMetadata", None),
                     "commit_end_date_time": commit_end_date_time,
@@ -90,6 +99,6 @@ class ChargeHistoryView(FormView):
                     EnergyDetails.objects.create(
                         charging_session=session,
                         energy=detail_data["Energy"],
-                        timestamp=convert_datetime(detail_data["Timestamp"]),
+                        timestamp=parse_zaptec_datetime(detail_data["Timestamp"]),  # Time aware UTC+0 datetime
                     )
         return new_sessions
