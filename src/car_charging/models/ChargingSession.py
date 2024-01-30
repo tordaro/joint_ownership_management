@@ -17,6 +17,7 @@ class ChargingSession(models.Model):
     charger_id = models.UUIDField(verbose_name=_("Charger ID"))
     device_name = models.CharField(max_length=100, verbose_name=_("Device Name"), blank=True)
     externally_ended = models.BooleanField(verbose_name=_("Externally Ended"), blank=True, null=True)
+    price_area = models.IntegerField(verbose_name=_("Price Area"), default=4)
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
