@@ -16,6 +16,16 @@ class SpotPrices(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
+    def get_price(self, price_area: int) -> float:
+        """Get the price for the given price area."""
+        price_area_name = f"no{price_area}"
+        return getattr(self, price_area_name)
+
+    def set_price(self, price_area: int, price: float) -> None:
+        """Set the price for the given price area."""
+        price_area_name = f"no{price_area}"
+        setattr(self, price_area_name, price)
+
     def __str__(self):
         return str(self.id)
 
