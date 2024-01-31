@@ -44,8 +44,12 @@ Activate virtual environment in your shell:
 
 You can now navigate to the `src` folder and migrate your database,
 
-`python manage.py migrate`,
+`python manage.py migrate`
 
-and then start the server:
+Get full access by creating a super user:
+
+`python manage.py createsuperuser`
+
+Start the server:
 
 `python manage.py runserver`
