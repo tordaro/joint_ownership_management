@@ -22,7 +22,8 @@ class ChargingSession(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
-    def calculate_cost(self):
+    def calculate_cost(self) -> float:
+        """Calculate the total cost of the charging session, based on the spot prices in the given price area."""
         return sum([energy_detail.calculate_cost() for energy_detail in self.energydetails_set.all()])
 
     def __str__(self):
