@@ -64,3 +64,12 @@ class CalculateTest(TestCase):
 
         self.assertEqual(total_cost_user_1, Decimal("0.1") * Decimal("1.1") + Decimal("0.2") * Decimal("2.2"))
         self.assertEqual(total_cost_user_2, Decimal("3.3") * Decimal("0.2"))
+
+    def calculate_session_cost(self):
+        result = self.sessions[0].calculate_cost()
+        expected_result = sum([energy_detail.calculate_cost() for energy_detail in self.energy_details[:2]])
+        self.assertEqual(result, expected_result)
+
+        result = self.sessions[1].calculate_cost()
+        expected_result = sum([energy_detail.calculate_cost() for energy_detail in self.energy_details[2:]])
+        self.assertEqual(result, expected_result)
