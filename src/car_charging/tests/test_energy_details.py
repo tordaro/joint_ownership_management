@@ -44,8 +44,9 @@ class EnergyDetailsTest(TestCase):
         self.assertEqual(self.energy_detail_1.calculate_cost(), 0.1 * 5)
 
     def test_calculate_cost_none(self):
-        """Test that get_price returns None when spot_price is None."""
-        self.assertFalse(self.energy_detail_2.calculate_cost())
+        """Test that get_price raises ValueError when spot_price is None."""
+        with self.assertRaises(ValueError):
+            self.energy_detail_2.calculate_cost()
 
     def test_get_hour(self):
         """Test that get_hour returns the correct value."""
