@@ -29,7 +29,7 @@ class EnergyDetailsTest(TestCase):
         self.energy_detail_1 = EnergyDetails.objects.create(
             charging_session=self.session, spot_price=self.spot_price, energy=5, timestamp=self.datetime_1
         )
-        self.energy_detail_2 = EnergyDetails.objects.create(charging_session=self.session, energy=5, timestamp=self.datetime_2)
+        self.energy_detail_2 = EnergyDetails.objects.create(charging_session=self.session, energy=3, timestamp=self.datetime_2)
 
     def test_get_price_value(self):
         """Test that get_price returns the correct value."""
@@ -38,6 +38,14 @@ class EnergyDetailsTest(TestCase):
     def test_get_price_none(self):
         """Test that get_price returns None when spot_price is None."""
         self.assertFalse(self.energy_detail_2.get_price())
+
+    def test_calculate_cost_value(self):
+        """Test that get_price returns the correct value."""
+        self.assertEqual(self.energy_detail_1.calculate_cost(), 0.1 * 5)
+
+    def test_calculate_cost_none(self):
+        """Test that get_price returns None when spot_price is None."""
+        self.assertFalse(self.energy_detail_2.calculate_cost())
 
     def test_get_hour(self):
         """Test that get_hour returns the correct value."""

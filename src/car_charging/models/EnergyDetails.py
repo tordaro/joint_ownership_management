@@ -6,21 +6,28 @@ from django.utils.translation import gettext_lazy as _
 class EnergyDetails(models.Model):
     charging_session = models.ForeignKey("ChargingSession", on_delete=models.CASCADE)
     spot_price = models.ForeignKey("SpotPrices", on_delete=models.SET_NULL, null=True)
-    energy = models.DecimalField(max_digits=8, decimal_places=6, verbose_name=_("Energy"))
+    energy = models.DecimalField(max_digits=8, decimal_places=6, verbose_name=_("Energy [kWh]"))
     timestamp = models.DateTimeField(verbose_name=_("Timestamp"))
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     def get_price(self) -> float | None:
-        """Get the price for the given price area."""
+        """Get the price for the given price area, if present."""
         if self.spot_price is not None:
             return self.spot_price.get_price(self.charging_session.price_area)
         else:
             return None
 
+    def calculate_cost(self) -> float | None:
+        """Calculate the cost of the energy, if spot price is not null."""
+        if self.spot_price is not None:
+            return self.get_price() * self.energy
+        else:
+            return None
+
     def get_hour(self) -> datetime:
-        """Get the hour for the given timestamp."""
+        """Get the hour for the given timestamp, if spot price is not null."""
         return self.timestamp.replace(minute=0, second=0, microsecond=0)
 
     def __str__(self):
