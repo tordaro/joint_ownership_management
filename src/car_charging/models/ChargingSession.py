@@ -11,7 +11,7 @@ class ChargingSession(models.Model):
     device_id = models.CharField(max_length=100, verbose_name=_("Device ID"))
     start_date_time = models.DateTimeField(verbose_name=_("Start Date Time"))
     end_date_time = models.DateTimeField(verbose_name=_("End Date Time"))
-    energy = models.DecimalField(max_digits=10, decimal_places=4, verbose_name=_("Energy"))
+    energy = models.DecimalField(max_digits=10, decimal_places=4, verbose_name=_("Energy [kWh]"))
     commit_metadata = models.IntegerField(verbose_name=_("Commit Metadata"), blank=True, null=True)
     commit_end_date_time = models.DateTimeField(verbose_name=_("Commit End Date Time"), blank=True, null=True)
     charger_id = models.UUIDField(verbose_name=_("Charger ID"))
@@ -21,6 +21,9 @@ class ChargingSession(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
+
+    def calculate_cost(self):
+        return sum([energy_detail.calculate_cost() for energy_detail in self.energydetails_set.all()])
 
     def __str__(self):
         return str(self.id)
