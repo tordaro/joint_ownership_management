@@ -1,12 +1,15 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from car_charging.managers.charging_session_manager import ChargingSessionManager
+
 
 class ChargingSession(models.Model):
+    objects = ChargingSessionManager()
     session_id = models.UUIDField(verbose_name=_("ID"))
     user_full_name = models.CharField(max_length=100, verbose_name=_("User Full Name"), blank=True)
     user_id = models.UUIDField(verbose_name=_("User ID"), blank=True, null=True)
-    user_name = models.EmailField(verbose_name=_("User Name"), blank=True, null=True)
+    user_name = models.CharField(verbose_name=_("User Name"), blank=True)
     user_email = models.EmailField(verbose_name=_("User Email"), blank=True, null=True)
     device_id = models.CharField(max_length=100, verbose_name=_("Device ID"))
     start_date_time = models.DateTimeField(verbose_name=_("Start Date Time"))
@@ -24,7 +27,7 @@ class ChargingSession(models.Model):
 
     def calculate_cost(self) -> float:
         """Calculate the total cost of the charging session, based on the spot prices in the given price area."""
-        return sum([energy_detail.calculate_cost() for energy_detail in self.energydetails_set.all()])
+        return sum(energy_detail.calculate_cost() for energy_detail in self.energydetails_set.all())
 
     def __str__(self):
         return str(self.id)
