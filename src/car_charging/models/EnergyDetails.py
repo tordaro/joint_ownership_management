@@ -19,19 +19,18 @@ class EnergyDetails(models.Model):
         self.spot_price = SpotPrices.objects.get(start_time=self.get_hour())
         self.save()
 
-    def get_price(self) -> float | None:
-        """Get the price for the given price area, if present."""
-        if self.spot_price is not None:
-            return self.spot_price.get_price(self.charging_session.price_area)  # The price in for the given price area may be null
-        else:
-            return None
+    def get_price(self) -> float:
+        """Get the price for the given price area. Raise ValueError if spot price is not available."""
+        if self.spot_price is None:
+            raise ValueError(f"Spot price for energy detail {self.id} is not set.")
+        price = self.spot_price.get_price(self.charging_session.price_area)
+        if price is None:
+            raise ValueError(f"Price for the given price area in energy detail {self.id} is not available.")
+        return price
 
     def calculate_cost(self) -> float:
         """Calculate the cost of the energy, if spot price is not null."""
-        if self.spot_price is not None:
-            return self.get_price() * self.energy
-        else:
-            raise ValueError(f"Spot price for energy detail {self.id} is not set.")
+        return float(self.get_price()) * float(self.energy)
 
     def get_hour(self) -> datetime:
         """Get the hour for the given timestamp, if spot price is not null."""
