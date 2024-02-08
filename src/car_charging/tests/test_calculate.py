@@ -7,7 +7,7 @@ from car_charging.models import SpotPrices, EnergyDetails, ChargingSession
 from ..calculate import get_spot_prices, calculate_cost
 
 
-class CalculateTest(TestCase):
+class CalculateTests(TestCase):
     def setUp(self):
         self.price_area = 1
         self.price_area_name = f"no{self.price_area}"
