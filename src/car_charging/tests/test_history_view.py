@@ -8,7 +8,7 @@ from car_charging.views.history import parse_zaptec_datetime, ChargeHistoryView
 from car_charging.models import ZaptecToken
 
 
-class TestChargingHistoryView(TestCase):
+class ChargingHistoryViewTests(TestCase):
     def setUp(self):
         self.client = Client()
 

@@ -16,6 +16,24 @@ class SpotPrices(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
+    def get_price(self, price_area: int) -> float:
+        """Get the price for the given price area."""
+        if 1 > price_area or 5 < price_area:
+            raise ValueError(f"Given price area: {price_area} is not within 1-5.")
+        price_area_name = f"no{price_area}"
+        price = getattr(self, price_area_name)
+        if price is not None:
+            return float(price)
+        else:
+            raise ValueError(f"Spot price for {self.start_time} in price area {price_area} is not set.")
+
+    def set_price(self, price_area: int, price: float) -> None:
+        """Set the price for the given price area."""
+        if 1 > price_area or 5 < price_area:
+            raise ValueError(f"Given price area: {price_area} is not within 1-5.")
+        price_area_name = f"no{price_area}"
+        setattr(self, price_area_name, price)
+
     def __str__(self):
         return str(self.id)
 
