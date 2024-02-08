@@ -68,6 +68,9 @@ class SpotPricesTest(TestCase):
             EnergyDetails.objects.create(charging_session=self.sessions[2], timestamp=self.time3, energy=4.4),  # Has no user_id
             EnergyDetails.objects.create(charging_session=self.sessions[2], timestamp=self.time4, energy=5.5),  # Has no user_id
         ]
+        self.user1_cost = 0.1 * 1.1 + 0.2 * 2.2
+        self.user2_cost = 0.2 * 3.3
+        self.anynomous_user_cost = 0.3 * 4.4 + 0.4 * 5.5
 
         for energy_detail in self.energy_details:
             energy_detail.set_spot_price()
@@ -82,25 +85,14 @@ class SpotPricesTest(TestCase):
 
     def test_calculate_total_user_cost(self):
         """Test calculation of total cost for given users."""
-        user1_cost = ChargingSession.objects.calculate_total_user_cost(user_id=self.user_id_1)
-        user2_cost = ChargingSession.objects.calculate_total_user_cost(user_id=self.user_id_2)
+        user1_cost = ChargingSession.objects.calculate_user_cost(user_id=self.user_id_1)
+        user2_cost = ChargingSession.objects.calculate_user_cost(user_id=self.user_id_2)
 
         self.assertEqual(user1_cost, 0.1 * 1.1 + 0.2 * 2.2)
         self.assertEqual(user2_cost, 3.3 * 0.2)
 
     def test_get_unique_users_returns_unique_users(self):
         """Test that get_unique_users returns all unique users."""
-        # ChargingSession.objects.create(
-        #     # No user_id
-        #     session_id=self.session_id,
-        #     charger_id=self.charger_id,
-        #     device_id=self.device_id,
-        #     start_date_time=self.time2,
-        #     end_date_time=self.time2 + timedelta(days=1),
-        #     price_area=self.price_area,
-        #     energy=2,
-        # )
-
         users = ChargingSession.objects.get_unique_users()
         user1 = {
             "user_id": self.user_id_1,
@@ -122,4 +114,26 @@ class SpotPricesTest(TestCase):
         self.assertEqual(len(users), 3)
 
     def test_calculate_total_cost_by_user(self):
-        print(ChargingSession.objects.calculate_total_cost_by_user())
+        """Test that the total cost for a user is calculated correctly."""
+        user1 = {
+            "user_id": self.user_id_1,
+            "user_full_name": "User Uno",
+            "user_name": "User1",
+            "user_email": "user1@name.com",
+            "total_cost": self.user1_cost,
+        }
+        user2 = {
+            "user_id": self.user_id_2,
+            "user_full_name": "User Dos",
+            "user_name": "User2",
+            "user_email": "user2@name.com",
+            "total_cost": self.user2_cost,
+        }
+        user3 = {"user_id": None, "user_full_name": "", "user_name": "", "user_email": None, "total_cost": self.anynomous_user_cost}
+
+        user_costs = ChargingSession.objects.calculate_total_cost_by_user()
+
+        self.assertIn(user1, user_costs)
+        self.assertIn(user2, user_costs)
+        self.assertIn(user3, user_costs)
+        self.assertEqual(len(user_costs), 3)
