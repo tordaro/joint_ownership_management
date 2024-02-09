@@ -26,3 +26,7 @@ class DateRangeForm(forms.Form):
                 raise forms.ValidationError(_("Start date cannot be later than end date."))
             if start_date > today:
                 raise forms.ValidationError(_("Start date cannot be later than today's date."))
+
+
+class CSVUploadForm(forms.Form):
+    file = forms.FileField()
