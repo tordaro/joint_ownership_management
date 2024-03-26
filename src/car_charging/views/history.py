@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.views.generic.edit import FormView
 from django.utils.timezone import datetime, localtime
 
+from car_charging.models.SpotPrices import SpotPrices
 from car_charging.zaptec_services import request_charge_history, renew_token
 from car_charging.forms import DateRangeForm
 from car_charging.models import ChargingSession, EnergyDetails, ZaptecToken
@@ -95,10 +96,17 @@ class ChargeHistoryView(FormView):
             else:
                 new_sessions.append(session)
                 energy_details = session_data["EnergyDetails"]
+
                 for detail_data in energy_details:
+                    timestamp = parse_zaptec_datetime(detail_data["Timestamp"])  # Time aware UTC+0 datetime
+                    timestamp_hour = timestamp.replace(minute=0, second=0, microsecond=0)
+                    spot_price = SpotPrices.objects.get(start_time=timestamp_hour)
+
                     EnergyDetails.objects.create(
                         charging_session=session,
                         energy=detail_data["Energy"],
-                        timestamp=parse_zaptec_datetime(detail_data["Timestamp"]),  # Time aware UTC+0 datetime
+                        timestamp=timestamp,
+                        spot_price=spot_price,
                     )
+
         return new_sessions
