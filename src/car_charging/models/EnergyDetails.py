@@ -10,6 +10,7 @@ class EnergyDetails(models.Model):
     spot_price = models.ForeignKey("SpotPrices", on_delete=models.SET_NULL, null=True)
     energy = models.DecimalField(max_digits=8, decimal_places=6, verbose_name=_("Energy [kWh]"))
     timestamp = models.DateTimeField(verbose_name=_("Timestamp"))
+    cost = models.DecimalField(max_digits=8, decimal_places=6, editable=False, null=True, verbose_name=_("Cost [kr]"))
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
@@ -17,7 +18,6 @@ class EnergyDetails(models.Model):
     def set_spot_price(self) -> None:
         """Set the spot price for the given energy detail."""
         self.spot_price = SpotPrices.objects.get(start_time=self.get_hour())
-        self.save()
 
     def get_price(self) -> float:
         """Get the price for the given price area. Raise ValueError if spot price is not available."""
@@ -35,6 +35,10 @@ class EnergyDetails(models.Model):
     def get_hour(self) -> datetime:
         """Get the hour for the given timestamp, if spot price is not null."""
         return self.timestamp.replace(minute=0, second=0, microsecond=0)
+
+    def set_cost(self) -> None:
+        """Set calculate and set the cost field."""
+        self.cost = self.calculate_cost()
 
     def __str__(self):
         return str(self.id)
