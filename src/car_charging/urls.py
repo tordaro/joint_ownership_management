@@ -1,6 +1,6 @@
 from django.urls import path
 
-from car_charging.views import EnergyDetailsListView, history, index, auth_token, ChargingSessionListView, SpotPricesUploadView
+from car_charging.views import EnergyDetailsListView, history, index, auth_token, ChargingSessionListView
 
 app_name = "charging"
 
@@ -11,5 +11,4 @@ urlpatterns = [
     path("history", history.ChargeHistoryView.as_view(), name="history"),
     path("sessions", ChargingSessionListView.as_view(), name="session_list"),
     path("energy", EnergyDetailsListView.as_view(), name="energy_detail_list"),
-    path("upload_spot_prices", SpotPricesUploadView.as_view(), name="upload_spot_prices"),
 ]
