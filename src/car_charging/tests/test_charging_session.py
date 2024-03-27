@@ -74,6 +74,8 @@ class SpotPricesTest(TestCase):
 
         for energy_detail in self.energy_details:
             energy_detail.set_spot_price()
+            energy_detail.set_cost()
+            energy_detail.save()
 
     def test_calculate_session_cost(self):
         """Test that the correct total cost of a charging session is calculated when all energy details have related prices."""

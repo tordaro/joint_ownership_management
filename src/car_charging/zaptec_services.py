@@ -1,5 +1,5 @@
 import requests
-from django.utils.timezone import datetime
+from datetime import datetime
 
 from car_charging.models import ZaptecToken
 
@@ -35,7 +35,7 @@ def request_token(username: str, password: str) -> requests.Response:
 class TokenRenewalException(Exception):
     """Exception raised when token renewal fails."""
 
-    def __init__(self, message="Failed to renew Zaptec token", status_code=None):
+    def __init__(self, message: str = "Failed to renew Zaptec token", status_code: int | None = None):
         self.message = message
         self.status_code = status_code
         super().__init__(self.message)

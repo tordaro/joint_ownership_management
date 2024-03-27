@@ -4,4 +4,4 @@ from .auth_token import renew_token
 from .ChargingSessionListView import ChargingSessionListView
 from .EnergyDetailsListView import EnergyDetailsListView
 
-__all__ = ["index", "ChargeHistoryView", "request_token", "renew_token", "ChargingSessionListView", "EnergyDetailsListView"]
+__all__ = ["index", "ChargeHistoryView", "renew_token", "ChargingSessionListView", "EnergyDetailsListView"]

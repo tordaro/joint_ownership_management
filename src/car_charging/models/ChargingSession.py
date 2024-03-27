@@ -27,7 +27,7 @@ class ChargingSession(models.Model):
 
     def calculate_cost(self) -> float:
         """Calculate the total cost of the charging session, based on the spot prices in the given price area."""
-        return sum(energy_detail.calculate_cost() for energy_detail in self.energydetails_set.all())
+        return sum(float(energy_detail.cost) for energy_detail in self.energydetails_set.all())
 
     def __str__(self):
         return str(self.id)
