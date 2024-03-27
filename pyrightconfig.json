@@ -1,0 +1,9 @@
+{
+  "typeCheckingMode": "basic",
+  "reportMissingTypeStubs": true,
+  "reportUnknownVariableType": false,
+  "reportUnknownMemberType": false,
+  "reportUnknownArgumentType": false,
+  "reportIncompatibleVariableOverride": false,
+  "reportAttributeAccessIssue": false,
+}
