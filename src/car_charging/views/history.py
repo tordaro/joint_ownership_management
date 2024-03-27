@@ -12,7 +12,7 @@ from car_charging.forms import DateRangeForm
 from car_charging.models import ChargingSession, EnergyDetails, ZaptecToken
 
 
-def parse_zaptec_datetime(datetime_string):
+def parse_zaptec_datetime(datetime_string: str) -> datetime:
     if "." in datetime_string:
         dt = datetime.strptime(datetime_string, "%Y-%m-%dT%H:%M:%S.%f%z")
     else:
@@ -99,14 +99,14 @@ class ChargeHistoryView(FormView):
 
                 for detail_data in energy_details:
                     timestamp = parse_zaptec_datetime(detail_data["Timestamp"])  # Time aware UTC+0 datetime
-                    timestamp_hour = timestamp.replace(minute=0, second=0, microsecond=0)
-                    spot_price = SpotPrices.objects.get(start_time=timestamp_hour)
 
-                    EnergyDetails.objects.create(
+                    energy_detail = EnergyDetails.objects.create(
                         charging_session=session,
                         energy=detail_data["Energy"],
                         timestamp=timestamp,
-                        spot_price=spot_price,
                     )
+                    energy_detail.set_spot_price()
+                    energy_detail.set_cost()
+                    energy_detail.save()
 
         return new_sessions
