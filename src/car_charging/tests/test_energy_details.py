@@ -49,6 +49,12 @@ class EnergyDetailsTests(TestCase):
         with self.assertRaises(ValueError):
             self.energy_detail_2.calculate_cost()
 
+    def test_cost_auto_field(self):
+        """Test that the non editable cost field is set with correct value."""
+        self.assertFalse(self.energy_detail_1.cost)
+        self.energy_detail_1.set_cost()
+        self.assertEqual(self.energy_detail_1.cost, 0.1 * 5)
+
     def test_get_hour(self):
         """Test that get_hour returns the correct value."""
         self.assertEqual(self.energy_detail_1.get_hour(), self.datetime_1.replace(minute=0, second=0, microsecond=0))
