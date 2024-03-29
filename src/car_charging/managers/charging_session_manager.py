@@ -8,13 +8,16 @@ from car_charging.models.EnergyDetails import EnergyDetails
 class ChargingSessionManager(models.Manager):
     def calculate_user_cost(self, user_id, start_date=None, end_date=None) -> float:
         """Calculate the total charging cost for a specific user within a date range."""
-        queryset = (
-            self.get_queryset()
-            .filter(user_id=user_id)
-            .prefetch_related(Prefetch("energydetails_set", queryset=EnergyDetails.objects.all().select_related("spot_price")))
+        queryset = self.get_queryset()
+
+        if start_date:
+            queryset = queryset.filter(start_date_time__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(end_date_time__lte=end_date)
+
+        queryset = queryset.filter(user_id=user_id).prefetch_related(
+            Prefetch("energydetails_set", queryset=EnergyDetails.objects.all().select_related("spot_price"))
         )
-        if start_date and end_date:
-            queryset = queryset.filter(start_date_time__gte=start_date, end_date_time__lte=end_date)
 
         total_cost = sum([session.calculate_cost() for session in queryset])
         return total_cost
