@@ -1,4 +1,5 @@
 import os
+import logging
 from django.forms import Form
 from django.urls import reverse_lazy
 from django.shortcuts import render
@@ -10,6 +11,8 @@ from car_charging.hks_services import get_or_request_daily_prices
 from car_charging.zaptec_services import request_charge_history, renew_token
 from car_charging.forms import DateRangeForm
 from car_charging.models import ChargingSession, EnergyDetails, ZaptecToken
+
+logger = logging.getLogger("django")
 
 
 def parse_zaptec_datetime(datetime_string: str) -> datetime:
@@ -94,6 +97,7 @@ class ChargeHistoryView(FormView):
             if not is_created:
                 continue
             else:
+                logger.info(f"Created charging session {session}")
                 new_sessions.append(session)
                 energy_details = session_data["EnergyDetails"]
 
@@ -109,5 +113,6 @@ class ChargeHistoryView(FormView):
                     )
                     energy_detail.set_cost()
                     energy_detail.save()
+                    logger.info(f"Created energy detail {energy_detail}")
 
         return new_sessions
