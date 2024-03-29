@@ -27,7 +27,7 @@ class SpotPriceRequestFailed(Exception):
         return f"{self.message} - Status Code: {self.status_code}"
 
 
-def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> float:
+def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> SpotPrices:
     """
     Get daily prices from the database if they exist, otherwise request them from Hvakosterstrommen API.
     """
@@ -35,7 +35,7 @@ def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> float:
     time_stamp = time_stamp.replace(minute=0, second=0, microsecond=0)  # Prices are given hourly
     try:
         spot_price = SpotPrices.objects.get(start_time=time_stamp)
-        return getattr(spot_price, price_area_name)
+        return spot_price
     except SpotPrices.DoesNotExist:
         response = request_spot_prices(time_stamp, price_area)
         if response.status_code == 200:
@@ -47,7 +47,7 @@ def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> float:
                     **{price_area_name: hourly_price.get("NOK_per_kWh")},
                 )
             spot_price = SpotPrices.objects.get(start_time=time_stamp)
-            return getattr(spot_price, price_area_name)
+            return spot_price
         else:
             raise SpotPriceRequestFailed(time_stamp, price_area, response.status_code)
 
