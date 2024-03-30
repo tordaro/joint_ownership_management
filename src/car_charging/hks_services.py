@@ -44,14 +44,18 @@ def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> SpotPr
         response = request_spot_prices(time_stamp, price_area)
         if response.status_code == 200:
             price_data = response.json()
+            spot_prices = []
             for hourly_price in price_data:
-                SpotPrices.objects.create(
-                    start_time=parse_datetime(hourly_price.get("time_start")),
-                    end_time=parse_datetime(hourly_price.get("time_end")),
-                    **{price_area_name: hourly_price.get("NOK_per_kWh")},
+                spot_prices.append(
+                    SpotPrices(
+                        start_time=parse_datetime(hourly_price.get("time_start")),
+                        end_time=parse_datetime(hourly_price.get("time_end")),
+                        **{price_area_name: hourly_price.get("NOK_per_kWh")},
+                    )
                 )
+            SpotPrices.objects.bulk_create(spot_prices)
+            logger.info(f"Created {len(spot_prices)} spot prices")
             spot_price = SpotPrices.objects.get(start_time=time_stamp)
-            logger.info(f"Created spot price {spot_price}")
             return spot_price
         else:
             raise SpotPriceRequestFailed(time_stamp, price_area, response.status_code)
