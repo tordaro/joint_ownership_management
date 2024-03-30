@@ -21,9 +21,9 @@ class TestSpotPrices(TestCase):
         response = request_spot_prices(self.time_stamp, self.price_area)
         self.assertEqual(response.status_code, 200)
 
-    def test_get_or_request_daily_prices_exists(self):
-        price = get_or_request_daily_prices(self.spot_price.start_time, self.price_area)
-        self.assertAlmostEqual(price, Decimal(getattr(self.spot_price, self.price_area_name)), places=6)
+    def test_get_or_request_daily_exists(self):
+        spot_price = get_or_request_daily_prices(self.spot_price.start_time, self.price_area)
+        self.assertEqual(spot_price, self.spot_price)
 
     @patch("requests.get")
     def test_get_or_request_daily_prices_request(self, mock_get):
@@ -52,8 +52,8 @@ class TestSpotPrices(TestCase):
             },
         ]
         time_stamp = make_aware(datetime(year=2023, month=12, day=27, hour=1, minute=30))
-        price = get_or_request_daily_prices(time_stamp, self.price_area)
-        self.assertAlmostEqual(price, Decimal(0.25573), places=6)
+        spot_price = get_or_request_daily_prices(time_stamp, self.price_area)
+        self.assertAlmostEqual(getattr(spot_price, "no4"), Decimal(0.25573), places=6)
 
     @patch("requests.get")
     def test_get_or_request_daily_prices_fail(self, mock_get):
