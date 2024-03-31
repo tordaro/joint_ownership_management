@@ -3,9 +3,11 @@ from django.utils.timezone import datetime
 from django.utils.translation import gettext_lazy as _
 
 from car_charging.models.SpotPrices import SpotPrices
+from car_charging.managers.energy_details_manager import EnergyDetailsManager
 
 
 class EnergyDetails(models.Model):
+    objects = EnergyDetailsManager()
     charging_session = models.ForeignKey("ChargingSession", on_delete=models.CASCADE)
     spot_price = models.ForeignKey("SpotPrices", on_delete=models.SET_NULL, null=True)
     energy = models.DecimalField(max_digits=8, decimal_places=6, verbose_name=_("Energy [kWh]"))
