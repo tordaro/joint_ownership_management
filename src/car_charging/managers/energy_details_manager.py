@@ -20,7 +20,7 @@ class EnergyDetailsManager(models.Manager):
             queryset = queryset.filter(charging_session__user_id=user_id)
 
         total_cost = queryset.values("charging_session__user_id").annotate(
-            total_cost=Sum("cost"), total_energy=Sum("energy"), user_name=Max("charging_session__user_full_name")
+            total_cost=Sum("cost"), total_energy=Sum("energy"), user_full_name=Max("charging_session__user_full_name")
         )
 
         return list(total_cost)
