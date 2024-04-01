@@ -30,9 +30,7 @@ The project is only guaranteed to work for Python >= 3.11, so check your version
 
 Use [pyenv](https://github.com/pyenv/pyenv#installation) to easily upgrade Python.
 
-Install poetry:
-
-`python -m pip install poetry`
+Install [poetry](https://python-poetry.org/docs/#installing-with-pipx).
 
 Make a virtual environment and install all dependencies:
 
