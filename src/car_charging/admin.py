@@ -1,5 +1,5 @@
 from django.contrib import admin
-from car_charging.models import ChargingSession, EnergyDetails, SpotPrices
+from car_charging.models import ChargingSession, EnergyDetails, SpotPrice
 
 
 class ChargingSessionAdmin(admin.ModelAdmin):
@@ -15,10 +15,10 @@ class EnergyDetailsAdmin(admin.ModelAdmin):
 
 
 class SpotPricesAdmin(admin.ModelAdmin):
-    list_display = ("id", "no1", "no2", "no3", "no4", "no5", "start_time")
+    list_display = ("id", "nok_pr_kwh", "eur_pr_kwh", "exchange_rate", "price_area", "start_time")
     list_filter = ("start_time", "created_at")
 
 
 admin.site.register(ChargingSession, ChargingSessionAdmin)
 admin.site.register(EnergyDetails, EnergyDetailsAdmin)
-admin.site.register(SpotPrices, SpotPricesAdmin)
+admin.site.register(SpotPrice, SpotPricesAdmin)
