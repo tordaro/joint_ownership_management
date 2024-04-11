@@ -34,6 +34,6 @@ class ChargingSession(models.Model):
 
     class Meta:
         db_table = "charging_session"
-        ordering = ["start_date_time"]
+        ordering = ["-start_date_time"]
         verbose_name = _("Charging Session")
         verbose_name_plural = _("Charging Sessions")
