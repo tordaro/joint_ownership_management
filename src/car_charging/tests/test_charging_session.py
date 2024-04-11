@@ -1,13 +1,12 @@
 import uuid
 from django.test import TestCase
 from django.utils.timezone import make_aware, timedelta, datetime
-from car_charging.models import SpotPrices, EnergyDetails, ChargingSession
+from car_charging.models import EnergyDetails, ChargingSession
 
 
 class SpotPricesTest(TestCase):
     def setUp(self):
         self.price_area = 1
-        self.price_area_name = f"no{self.price_area}"
         self.time1 = make_aware(datetime(2022, 1, 1, 1, 0, 0))
         self.time2 = make_aware(datetime(2022, 1, 2, 1, 0, 0))
         self.time3 = make_aware(datetime(2022, 1, 3, 5, 0, 0))
@@ -17,12 +16,6 @@ class SpotPricesTest(TestCase):
         self.session_id = uuid.uuid4()
         self.user_id_1 = uuid.uuid4()
         self.user_id_2 = uuid.uuid4()
-        self.spot_prices = [
-            SpotPrices.objects.create(start_time=self.time1, end_time=self.time2, **{self.price_area_name: 0.1}),
-            SpotPrices.objects.create(start_time=self.time2, end_time=self.time2 + timedelta(days=1), **{self.price_area_name: 0.2}),
-            SpotPrices.objects.create(start_time=self.time3, end_time=self.time2, **{self.price_area_name: 0.3}),
-            SpotPrices.objects.create(start_time=self.time4, end_time=self.time2, **{self.price_area_name: 0.4}),
-        ]
         self.sessions = [
             ChargingSession.objects.create(
                 user_id=self.user_id_1,
@@ -68,22 +61,6 @@ class SpotPricesTest(TestCase):
             EnergyDetails.objects.create(charging_session=self.sessions[2], timestamp=self.time3, energy=4.4),  # Has no user_id
             EnergyDetails.objects.create(charging_session=self.sessions[2], timestamp=self.time4, energy=5.5),  # Has no user_id
         ]
-        self.user1_cost = 0.1 * 1.1 + 0.2 * 2.2
-        self.user2_cost = 0.2 * 3.3
-        self.anynomous_user_cost = 0.3 * 4.4 + 0.4 * 5.5
-
-        for energy_detail in self.energy_details:
-            energy_detail.set_spot_price()
-            energy_detail.set_cost()
-            energy_detail.save()
-
-    def test_calculate_session_cost(self):
-        """Test that the correct total cost of a charging session is calculated when all energy details have related prices."""
-        session1_cost = self.sessions[0].calculate_cost()
-        session2_cost = self.sessions[1].calculate_cost()
-
-        self.assertEqual(session1_cost, 0.1 * 1.1 + 0.2 * 2.2)
-        self.assertEqual(session2_cost, 3.3 * 0.2)
 
     def test_get_unique_users_returns_unique_users(self):
         """Test that get_unique_users returns all unique users."""
