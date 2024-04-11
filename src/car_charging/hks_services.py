@@ -1,8 +1,8 @@
-import requests
 import logging
-from django.utils.timezone import datetime, timedelta
+import requests
+from django.utils.timezone import datetime
 from django.utils.dateparse import parse_datetime
-from car_charging.models import SpotPrices
+from car_charging.models import SpotPrice
 
 logger = logging.getLogger("django")
 
@@ -31,67 +31,33 @@ class SpotPriceRequestFailed(Exception):
         return f"{self.message} - Status Code: {self.status_code}"
 
 
-def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> SpotPrices:
+def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> SpotPrice:
     """
     Get daily prices from the database if they exist, otherwise request them from Hvakosterstrommen API.
     """
-    price_area_name = f"no{price_area}"
     time_stamp = time_stamp.replace(minute=0, second=0, microsecond=0)  # Prices are given hourly
     try:
-        spot_price = SpotPrices.objects.get(start_time=time_stamp)
+        spot_price = SpotPrice.objects.get(start_time=time_stamp)
         return spot_price
-    except SpotPrices.DoesNotExist:
+    except SpotPrice.DoesNotExist:
         response = request_spot_prices(time_stamp, price_area)
         if response.status_code == 200:
             price_data = response.json()
             spot_prices = []
             for hourly_price in price_data:
                 spot_prices.append(
-                    SpotPrices(
+                    SpotPrice(
+                        nok_pr_kwh=hourly_price.get("NOK_per_kWh"),
+                        eur_pr_kwh=hourly_price.get("EUR_per_kWh"),
+                        exchange_rate=hourly_price.get("EXR"),
+                        price_area=price_area,
                         start_time=parse_datetime(hourly_price.get("time_start")),
                         end_time=parse_datetime(hourly_price.get("time_end")),
-                        **{price_area_name: hourly_price.get("NOK_per_kWh")},
                     )
                 )
-            SpotPrices.objects.bulk_create(spot_prices)
+            SpotPrice.objects.bulk_create(spot_prices)
             logger.info(f"Created {len(spot_prices)} spot prices")
-            spot_price = SpotPrices.objects.get(start_time=time_stamp)
+            spot_price = SpotPrice.objects.get(start_time=time_stamp)
             return spot_price
         else:
             raise SpotPriceRequestFailed(time_stamp, price_area, response.status_code)
-
-
-def set_spot_prices(date: datetime, price_area: int):
-    response = request_spot_prices(date, price_area)
-    if response.status_code == 200:
-        price_data = response.json()
-        for hourly_price in price_data:
-            SpotPrices.objects.update_or_create(
-                start_time=parse_datetime(hourly_price.get("time_start")),
-                defaults={
-                    "end_time": parse_datetime(hourly_price.get("time_end")),
-                    **{f"no{price_area}": hourly_price.get("NOK_per_kWh")},
-                },
-            )
-    else:
-        raise SpotPriceRequestFailed(date.date(), price_area, response.status_code)
-
-
-def populate_missing_spot_prices(start_date: datetime, end_date: datetime, price_area: int):
-    populated_dates = []
-    current_date = start_date
-
-    while current_date <= end_date:
-        if (
-            not SpotPrices.objects.filter(start_time__date=current_date).exists()
-            or SpotPrices.objects.filter(start_time__date=current_date, **{f"no{price_area}__isnull": True}).exists()
-        ):
-            try:
-                set_spot_prices(current_date, price_area)
-                populated_dates.append(current_date.date())
-            except SpotPriceRequestFailed as e:
-                logger.error(e)
-
-        current_date += timedelta(days=1)
-
-    return populated_dates
