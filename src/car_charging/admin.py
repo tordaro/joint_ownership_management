@@ -9,7 +9,7 @@ class ChargingSessionAdmin(admin.ModelAdmin):
 
 
 class EnergyDetailsAdmin(admin.ModelAdmin):
-    list_display = ("id", "charging_session", "energy", "cost", "timestamp", "created_at")
+    list_display = ("id", "charging_session", "energy", "timestamp", "created_at")
     list_filter = ("charging_session", "energy", "timestamp", "created_at")
     search_fields = ("charging_session",)
 
