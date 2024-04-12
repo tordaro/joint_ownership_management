@@ -1,7 +1,7 @@
 import uuid
 from django.utils.timezone import make_aware, datetime, timedelta
 from django.test import TestCase
-from car_charging.models import ChargingSession, SpotPrices, EnergyDetails
+from car_charging.models import ChargingSession, EnergyDetails
 
 
 class EnergyDetailsTests(TestCase):
