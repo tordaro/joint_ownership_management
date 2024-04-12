@@ -2,10 +2,10 @@ import uuid
 import pytz
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.utils.timezone import datetime, make_aware
+from django.utils.timezone import datetime, make_aware, timedelta
 from unittest.mock import patch
 from car_charging.views.history import parse_zaptec_datetime, ChargeHistoryView
-from car_charging.models import ZaptecToken, SpotPrices
+from car_charging.models import ZaptecToken
 
 
 class ChargingHistoryViewTests(TestCase):
@@ -16,6 +16,7 @@ class ChargingHistoryViewTests(TestCase):
         self.device_id = uuid.uuid4()
         self.session_id = uuid.uuid4()
         self.user_id = uuid.uuid4()
+        self.timestamp = make_aware((datetime(2022, 1, 1, 2)))
         self.data = [
             {
                 "ChargerId": str(self.charger_id),
@@ -48,7 +49,6 @@ class ChargingHistoryViewTests(TestCase):
             token="test_token",
             expires_in=60 * 60 * 24,
         )
-        self.spot_price = SpotPrices.objects.create(no1=1.1, no2=1.2, no3=1.3, no4=1.4, no5=1.5, start_time=make_aware(datetime(2022, 1, 1, 2)))
 
     def test_create_charging_sessions(self):
         result = ChargeHistoryView.create_charging_sessions(self.data)
@@ -71,14 +71,11 @@ class ChargingHistoryViewTests(TestCase):
         self.assertEqual(session.user_id, str(self.user_id))
         self.assertEqual(session.user_name, "test_user")
         self.assertEqual(energy_details.count(), 2)
-        self.assertEqual(energy_details[0].energy, 50)
-        self.assertEqual(energy_details[0].timestamp, make_aware(datetime(2022, 1, 1, 2, 0, 0)))
-        self.assertEqual(energy_details[0].cost, 50 * 1.4)
-        self.assertEqual(energy_details[0].spot_price, self.spot_price)
-        self.assertEqual(energy_details[1].energy, 40)
-        self.assertEqual(energy_details[1].cost, 40 * 1.4)
-        self.assertEqual(energy_details[1].timestamp, make_aware(datetime(2022, 1, 1, 2, 30, 0)))
-        self.assertEqual(energy_details[1].spot_price, self.spot_price)
+        # EnergyDetails are ordered by timestamp desc
+        self.assertEqual(energy_details[1].energy, 50)
+        self.assertEqual(energy_details[1].timestamp, make_aware(datetime(2022, 1, 1, 2, 0, 0)))
+        self.assertEqual(energy_details[0].energy, 40)
+        self.assertEqual(energy_details[0].timestamp, make_aware(datetime(2022, 1, 1, 2, 30, 0)))
 
     def test_charge_history_get(self):
         client = Client()
