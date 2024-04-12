@@ -31,6 +31,29 @@ class SpotPriceRequestFailed(Exception):
         return f"{self.message} - Status Code: {self.status_code}"
 
 
+def create_daily_spot_prices(time_stamp: datetime, price_area: int) -> None:
+
+    response = request_spot_prices(time_stamp, price_area)
+    if response.status_code == 200:
+        price_data = response.json()
+        spot_prices = []
+        for hourly_price in price_data:
+            spot_prices.append(
+                SpotPrice(
+                    nok_pr_kwh=hourly_price.get("NOK_per_kWh"),
+                    eur_pr_kwh=hourly_price.get("EUR_per_kWh"),
+                    exchange_rate=hourly_price.get("EXR"),
+                    price_area=price_area,
+                    start_time=parse_datetime(hourly_price.get("time_start")),
+                    end_time=parse_datetime(hourly_price.get("time_end")),
+                )
+            )
+        SpotPrice.objects.bulk_create(spot_prices)
+        logger.info(f"Created {len(spot_prices)} spot prices for {time_stamp}")
+    else:
+        raise SpotPriceRequestFailed(time_stamp, price_area, response.status_code)
+
+
 def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> SpotPrice:
     """
     Get daily prices from the database if they exist, otherwise request them from Hvakosterstrommen API.
@@ -40,24 +63,6 @@ def get_or_request_daily_prices(time_stamp: datetime, price_area: int) -> SpotPr
         spot_price = SpotPrice.objects.get(start_time=time_stamp)
         return spot_price
     except SpotPrice.DoesNotExist:
-        response = request_spot_prices(time_stamp, price_area)
-        if response.status_code == 200:
-            price_data = response.json()
-            spot_prices = []
-            for hourly_price in price_data:
-                spot_prices.append(
-                    SpotPrice(
-                        nok_pr_kwh=hourly_price.get("NOK_per_kWh"),
-                        eur_pr_kwh=hourly_price.get("EUR_per_kWh"),
-                        exchange_rate=hourly_price.get("EXR"),
-                        price_area=price_area,
-                        start_time=parse_datetime(hourly_price.get("time_start")),
-                        end_time=parse_datetime(hourly_price.get("time_end")),
-                    )
-                )
-            SpotPrice.objects.bulk_create(spot_prices)
-            logger.info(f"Created {len(spot_prices)} spot prices")
-            spot_price = SpotPrice.objects.get(start_time=time_stamp)
-            return spot_price
-        else:
-            raise SpotPriceRequestFailed(time_stamp, price_area, response.status_code)
+        create_daily_spot_prices(time_stamp, price_area)
+        spot_price = SpotPrice.objects.get(start_time=time_stamp)
+        return spot_price
