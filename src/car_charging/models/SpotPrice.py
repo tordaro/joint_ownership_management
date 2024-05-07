@@ -27,5 +27,6 @@ class SpotPrice(models.Model):
         db_table = "spot_price"
         ordering = ["-start_time"]
         unique_together = ["start_time", "price_area"]
+        indexes = [models.Index(fields=["start_time"]), models.Index(fields=["price_area"]), models.Index(fields=["start_time", "price_area"])]
         verbose_name = _("Spot Price")
         verbose_name_plural = _("Spot Prices")
