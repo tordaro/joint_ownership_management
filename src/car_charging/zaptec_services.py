@@ -1,7 +1,12 @@
+import os
+import logging
 import requests
 from datetime import datetime
+from django.utils.timezone import datetime, localtime
 
-from car_charging.models import ZaptecToken
+from car_charging.models import ChargingSession, EnergyDetails, ZaptecToken
+
+logger = logging.getLogger("django")
 
 
 def request_charge_history(access_token: str, installation_id: str, from_date: datetime, to_date: datetime) -> requests.Response:
@@ -56,3 +61,75 @@ def renew_token(username: str, password: str) -> ZaptecToken:
         expires_in=response_data.get("expires_in", None),
     )
     return new_token
+
+
+def parse_zaptec_datetime(datetime_string: str) -> datetime:
+    if "." in datetime_string:
+        dt = datetime.strptime(datetime_string, "%Y-%m-%dT%H:%M:%S.%f%z")
+    else:
+        dt = datetime.strptime(datetime_string, "%Y-%m-%dT%H:%M:%S%z")
+    return localtime(dt)
+
+
+def create_charging_sessions(api_data: list[dict]) -> list[ChargingSession]:
+    """
+    Create new ChargingSession and EnergyDetails objects from the given API data.
+    All timestamps are UTC+0, but the session timestamps are naive and the energy details are time aware.
+    """
+    new_sessions = []
+    for session_data in api_data:
+        commit_end_date_time = session_data.get("CommitEndDateTime", None)
+        if commit_end_date_time:
+            commit_end_date_time = parse_zaptec_datetime(commit_end_date_time + "+00:00")  # Naive UTC+0 datetime
+
+        session, is_created = ChargingSession.objects.get_or_create(
+            session_id=session_data["Id"],
+            defaults={
+                "user_full_name": session_data.get("UserFullName", ""),
+                "user_id": session_data.get("UserId", None),
+                "user_name": session_data.get("UserName", ""),
+                "user_email": session_data.get("UserEmail", ""),
+                "device_id": session_data["DeviceId"],
+                "start_date_time": parse_zaptec_datetime(session_data["StartDateTime"] + "+00:00"),  # Naive UTC+0 datetime
+                "end_date_time": parse_zaptec_datetime(session_data["EndDateTime"] + "+00:00"),  # Naive UTC+0 datetime
+                "energy": session_data["Energy"],
+                "commit_metadata": session_data.get("CommitMetadata", None),
+                "commit_end_date_time": commit_end_date_time,
+                "charger_id": session_data["ChargerId"],
+                "device_name": session_data.get("DeviceName", ""),
+                "externally_ended": session_data.get("ExternallyEnded", None),
+            },
+        )
+        if not is_created:
+            continue
+        else:
+            logger.info(f"Created charging session {session}")
+            new_sessions.append(session)
+            energy_details = session_data["EnergyDetails"]
+
+            for detail_data in energy_details:
+                energy_detail = EnergyDetails.objects.create(
+                    charging_session=session,
+                    energy=detail_data["Energy"],
+                    timestamp=parse_zaptec_datetime(detail_data["Timestamp"]),  # Time aware UTC+0 datetime
+                )
+                logger.info(f"Created energy detail {energy_detail}")
+
+    return new_sessions
+
+
+def get_charge_history_data(start_date: datetime, end_date: datetime) -> list[dict]:
+    """
+    Get charge history data from Zaptec API.
+    """
+    zaptec_token = ZaptecToken.objects.first()
+    if not zaptec_token or zaptec_token.is_token_expired():
+        # TODO: Test this when zaptec_token is None
+        username = os.getenv("ZAPTEC_USERNAME", "")
+        password = os.getenv("ZAPTEC_PASSWORD", "")
+        zaptec_token = renew_token(username, password)
+
+    access_token = zaptec_token.token
+    installation_id = os.getenv("INSTALLATION_ID", "")
+    response = request_charge_history(access_token, installation_id, start_date, end_date)
+    return response.json()["Data"]

@@ -2,10 +2,12 @@ import uuid
 import pytz
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.utils.timezone import datetime, make_aware, timedelta
+from django.utils.timezone import datetime, make_aware
 from unittest.mock import patch
-from car_charging.views.history import parse_zaptec_datetime, ChargeHistoryView
+
+import car_charging.zaptec_services as zts
 from car_charging.models import ZaptecToken
+from car_charging.views.history import ChargeHistoryView
 
 
 class ChargingHistoryViewTests(TestCase):
@@ -51,7 +53,7 @@ class ChargingHistoryViewTests(TestCase):
         )
 
     def test_create_charging_sessions(self):
-        result = ChargeHistoryView.create_charging_sessions(self.data)
+        result = zts.create_charging_sessions(self.data)
         session = result[0]
         energy_details = session.energydetails_set.all()
 
@@ -82,7 +84,7 @@ class ChargingHistoryViewTests(TestCase):
         response = client.get(reverse("charging:history"))
         self.assertEqual(response.status_code, 200)
 
-    @patch("car_charging.views.history.ChargeHistoryView.get_charge_history_data")
+    @patch("car_charging.zaptec_services.get_charge_history_data")
     def test_charge_history_post(self, mock_get_charge_history_data):
         mock_get_charge_history_data.return_value = self.data
         form_data = {
@@ -97,7 +99,7 @@ class ChargingHistoryViewTests(TestCase):
         datetime_string = "2022-01-01T00:00:00.00000+00:00"
         expected_result = datetime(2022, 1, 1, tzinfo=pytz.utc)
 
-        result = parse_zaptec_datetime(datetime_string)
+        result = zts.parse_zaptec_datetime(datetime_string)
 
         self.assertEqual(result, expected_result)
 
@@ -105,6 +107,6 @@ class ChargingHistoryViewTests(TestCase):
         datetime_string = "2022-01-01T00:00:00+00:00"
         expected_result = datetime(2022, 1, 1, tzinfo=pytz.utc)
 
-        result = parse_zaptec_datetime(datetime_string)
+        result = zts.parse_zaptec_datetime(datetime_string)
 
         self.assertEqual(result, expected_result)
