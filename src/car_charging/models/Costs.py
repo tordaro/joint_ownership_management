@@ -42,6 +42,10 @@ class Costs(models.Model):
     def set_grid_cost(self) -> None:
         self.grid_cost = self.energy * self.grid_price_nok
 
+    def set_user(self) -> None:
+        self.user_id = self.energy_detail.charging_session.user_id
+        self.user_full_name = self.energy_detail.charging_session.user_full_name
+
     def save(self, *args, **kwargs):
         self.set_energy()
         self.set_timestamp()
@@ -50,6 +54,7 @@ class Costs(models.Model):
         self.set_grid_price()
         self.set_spot_cost()
         self.set_grid_cost()
+        self.set_user()
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
