@@ -40,6 +40,6 @@ class EnergyDetailsTests(TestCase):
         self.energy_detail_3 = EnergyDetails.objects.create(charging_session=self.session_2, energy=1.2, timestamp=self.datetime_3)
         self.energy_details = [self.energy_detail_1, self.energy_detail_2, self.energy_detail_3]
 
-    def test_get_hour(self):
-        """Test that get_hour returns the correct value."""
-        self.assertEqual(self.energy_detail_1.get_hour(), self.datetime_1.replace(minute=0, second=0, microsecond=0))
+    def test_get_hourly_timestamp(self):
+        """Test that get_hourly_timestamp returns timestamp with hourly precision."""
+        self.assertEqual(self.energy_detail_1.get_hourly_timestamp(), self.datetime_1.replace(minute=0, second=0, microsecond=0))
