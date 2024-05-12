@@ -1,5 +1,5 @@
 from django.contrib import admin
-from car_charging.models import ChargingSession, EnergyDetails, SpotPrice, Costs, GridPrice
+from car_charging.models import ChargingSession, EnergyDetails, SpotPrice, CostDetails, GridPrice
 
 
 class ChargingSessionAdmin(admin.ModelAdmin):
@@ -22,7 +22,7 @@ class SpotPricesAdmin(admin.ModelAdmin):
     list_filter = ("start_time", "created_at")
 
 
-class CostsAdmin(admin.ModelAdmin):
+class CostDetailsAdmin(admin.ModelAdmin):
     readonly_fields = (
         "energy",
         "timestamp",
@@ -49,5 +49,5 @@ class GridPriceAdmin(admin.ModelAdmin):
 admin.site.register(ChargingSession, ChargingSessionAdmin)
 admin.site.register(EnergyDetails, EnergyDetailsAdmin)
 admin.site.register(SpotPrice, SpotPricesAdmin)
-admin.site.register(Costs, CostsAdmin)
+admin.site.register(CostDetails, CostDetailsAdmin)
 admin.site.register(GridPrice, GridPriceAdmin)

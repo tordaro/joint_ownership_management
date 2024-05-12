@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class Costs(models.Model):
+class CostDetails(models.Model):
     energy_detail = models.OneToOneField("EnergyDetails", on_delete=models.CASCADE, primary_key=True)
     spot_price = models.ForeignKey("SpotPrice", on_delete=models.SET_NULL, null=True)
     grid_price = models.ForeignKey("GridPrice", on_delete=models.SET_NULL, null=True)
@@ -61,6 +61,6 @@ class Costs(models.Model):
         return str(self.energy_detail.id)
 
     class Meta:
-        db_table = "costs"
-        verbose_name = _("Costs")
-        verbose_name_plural = _("Costs")
+        db_table = "cost_details"
+        verbose_name = _("Cost detail")
+        verbose_name_plural = _("Cost details")
