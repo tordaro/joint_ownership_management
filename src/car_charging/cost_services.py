@@ -24,5 +24,6 @@ def create_cost_details(from_date: datetime | None = None, to_date: datetime | N
         hourly_timestamp = energy_detail.get_hourly_timestamp()
         grid_price = grid_prices.filter(start_date__lte=energy_detail.timestamp.date()).first()
         spot_price = spot_prices.filter(price_area=price_area, start_time=hourly_timestamp).first()
-        cost_detail = CostDetails.objects.create(energy_detail=energy_detail, spot_price=spot_price, grid_price=grid_price)
-        logger.info(f"Inserted cost detail {cost_detail}.")
+        cost_detail, is_created = CostDetails.objects.get_or_create(energy_detail=energy_detail, spot_price=spot_price, grid_price=grid_price)
+        if is_created:
+            logger.info(f"Inserted cost detail {cost_detail}.")
