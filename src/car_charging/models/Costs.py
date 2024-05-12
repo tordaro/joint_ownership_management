@@ -10,8 +10,10 @@ class Costs(models.Model):
     energy = models.DecimalField(_("Energy [kWh]"), editable=False, max_digits=8, decimal_places=6)
     timestamp = models.DateTimeField(verbose_name=_("Timestamp"), editable=False)
     price_area = models.IntegerField(_("Price area"), editable=False)
-    spot_nok_pr_kwh = models.DecimalField(_("Spot price per kWh [NOK/kWh]"), editable=False, max_digits=10, decimal_places=7)
-    grid_nok_pr_kwh = models.DecimalField(_("Grid price per kWh [NOK/kWh]"), editable=False, max_digits=10, decimal_places=7)
+    spot_price_nok = models.DecimalField(_("Spot price per kWh [NOK/kWh]"), editable=False, max_digits=10, decimal_places=7)
+    grid_price_nok = models.DecimalField(_("Grid price per kWh [NOK/kWh]"), editable=False, max_digits=10, decimal_places=7)
+    user_full_name = models.CharField(verbose_name=_("User Full Name"), editable=False, max_length=100, blank=True)
+    user_id = models.UUIDField(_("User ID"), editable=False, blank=True, null=True)
 
     spot_cost = models.DecimalField(_("Spot cost [NOK]"), editable=False, max_digits=11, decimal_places=7)
     grid_cost = models.DecimalField(_("Grid cost [NOK]"), editable=False, max_digits=11, decimal_places=7)
@@ -29,16 +31,16 @@ class Costs(models.Model):
         self.price_area = self.energy_detail.charging_session.price_area
 
     def set_spot_price(self) -> None:
-        self.spot_nok_pr_kwh = self.spot_price.nok_pr_kwh
+        self.spot_price_nok = self.spot_price.nok_pr_kwh
 
     def set_grid_price(self) -> None:
-        self.grid_nok_pr_kwh = self.grid_price.get_price(self.timestamp)
+        self.grid_price_nok = self.grid_price.get_price(self.timestamp)
 
     def set_spot_cost(self) -> None:
-        self.spot_cost = self.energy * self.spot_nok_pr_kwh
+        self.spot_cost = self.energy * self.spot_price_nok
 
     def set_grid_cost(self) -> None:
-        self.grid_cost = self.energy * self.grid_nok_pr_kwh
+        self.grid_cost = self.energy * self.grid_price_nok
 
     def save(self, *args, **kwargs):
         self.set_energy()
