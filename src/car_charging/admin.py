@@ -27,15 +27,17 @@ class CostsAdmin(admin.ModelAdmin):
         "energy",
         "timestamp",
         "price_area",
-        "spot_nok_pr_kwh",
-        "grid_nok_pr_kwh",
+        "spot_price_nok",
+        "grid_price_nok",
         "spot_cost",
         "grid_cost",
+        "user_full_name",
+        "user_id",
         "created_at",
         "updated_at",
     )
-    list_display = ("energy_detail", "energy", "timestamp", "spot_nok_pr_kwh", "grid_nok_pr_kwh", "spot_cost", "grid_cost")
-    list_filter = ("timestamp",)
+    list_display = ("energy_detail", "energy", "timestamp", "spot_price_nok", "grid_price_nok", "spot_cost", "grid_cost", "user_full_name")
+    list_filter = ("timestamp", "user_full_name", "user_id")
 
 
 class GridPriceAdmin(admin.ModelAdmin):
