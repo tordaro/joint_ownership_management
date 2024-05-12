@@ -1,8 +1,11 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from car_charging.managers.cost_details_manager import CostDetailsManager
+
 
 class CostDetails(models.Model):
+    objects = CostDetailsManager()
     energy_detail = models.OneToOneField("EnergyDetails", on_delete=models.CASCADE, primary_key=True)
     spot_price = models.ForeignKey("SpotPrice", on_delete=models.SET_NULL, null=True)
     grid_price = models.ForeignKey("GridPrice", on_delete=models.SET_NULL, null=True)
@@ -17,6 +20,7 @@ class CostDetails(models.Model):
 
     spot_cost = models.DecimalField(_("Spot cost [NOK]"), editable=False, max_digits=11, decimal_places=7)
     grid_cost = models.DecimalField(_("Grid cost [NOK]"), editable=False, max_digits=11, decimal_places=7)
+    total_cost = models.DecimalField(_("Total cost [NOK]"), editable=False, max_digits=11, decimal_places=7)
 
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
@@ -36,15 +40,18 @@ class CostDetails(models.Model):
     def set_grid_price(self) -> None:
         self.grid_price_nok = self.grid_price.get_price(self.timestamp)
 
-    def set_spot_cost(self) -> None:
-        self.spot_cost = self.energy * self.spot_price_nok
+    def set_user(self) -> None:
+        self.user_id = self.energy_detail.charging_session.user_id
+        self.user_full_name = self.energy_detail.charging_session.user_full_name
 
     def set_grid_cost(self) -> None:
         self.grid_cost = self.energy * self.grid_price_nok
 
-    def set_user(self) -> None:
-        self.user_id = self.energy_detail.charging_session.user_id
-        self.user_full_name = self.energy_detail.charging_session.user_full_name
+    def set_spot_cost(self) -> None:
+        self.spot_cost = self.energy * self.spot_price_nok
+
+    def set_total_cost(self) -> None:
+        self.total_cost = self.grid_cost + self.spot_cost
 
     def save(self, *args, **kwargs):
         self.set_energy()
@@ -54,6 +61,7 @@ class CostDetails(models.Model):
         self.set_grid_price()
         self.set_spot_cost()
         self.set_grid_cost()
+        self.set_total_cost()
         self.set_user()
         super().save(*args, **kwargs)
 
