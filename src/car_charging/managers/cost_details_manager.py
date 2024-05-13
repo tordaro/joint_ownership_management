@@ -13,6 +13,7 @@ class CostDetailsManager(models.Manager):
         "energy": Sum("energy"),
         "spot_cost": Sum("spot_cost"),
         "grid_cost": Sum("grid_cost"),
+        "usage_cost": Sum("usage_cost"),
         "total_cost": Sum("total_cost"),
         "cost_pr_kwh": ExpressionWrapper(F("total_cost") / F("energy"), output_field=DecimalField()),
         "charging_sessions": Count("session_id", distinct=True),
