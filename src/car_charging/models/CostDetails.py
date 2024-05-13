@@ -10,6 +10,7 @@ class CostDetails(models.Model):
     spot_price = models.ForeignKey("SpotPrice", on_delete=models.SET_NULL, null=True)
     grid_price = models.ForeignKey("GridPrice", on_delete=models.SET_NULL, null=True)
 
+    session_id = models.IntegerField(_("Charging session"), editable=False)
     energy = models.DecimalField(_("Energy [kWh]"), editable=False, max_digits=8, decimal_places=6)
     timestamp = models.DateTimeField(verbose_name=_("Timestamp"), editable=False)
     price_area = models.IntegerField(_("Price area"), editable=False)
@@ -24,6 +25,9 @@ class CostDetails(models.Model):
 
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
+
+    def set_session_id(self) -> None:
+        self.session_id = self.energy_detail.charging_session.id
 
     def set_energy(self) -> None:
         self.energy = self.energy_detail.energy
@@ -54,6 +58,7 @@ class CostDetails(models.Model):
         self.total_cost = self.grid_cost + self.spot_cost
 
     def save(self, *args, **kwargs):
+        self.set_session_id()
         self.set_energy()
         self.set_timestamp()
         self.set_spot_price()
