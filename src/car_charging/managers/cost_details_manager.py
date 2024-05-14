@@ -14,6 +14,8 @@ class CostDetailsManager(models.Manager):
         "spot_cost": Sum("spot_cost"),
         "grid_cost": Sum("grid_cost"),
         "usage_cost": Sum("usage_cost"),
+        "fund_cost": Sum("fund_cost"),
+        "refund": Sum("refund"),
         "total_cost": Sum("total_cost"),
         "cost_pr_kwh": ExpressionWrapper(F("total_cost") / F("energy"), output_field=DecimalField()),
         "charging_sessions": Count("session_id", distinct=True),
@@ -50,6 +52,20 @@ class CostDetailsManager(models.Manager):
             .values("user_id")
             .annotate(**self._aggregations)
             .order_by("user")
+        )
+        return list(queryset)
+
+    def costs_by_month(
+        self, user_id: str | None = None, user_full_name: str | None = None, from_date: datetime | None = None, to_date: datetime | None = None
+    ) -> list[dict]:
+        """Calculate the total cost by each user and month within a time range."""
+        queryset = self.get_queryset()
+        queryset = self._add_filters(queryset, user_id, user_full_name, from_date, to_date)
+        queryset = (
+            queryset.annotate(month=TruncMonth("timestamp"), year=TruncYear("timestamp"))
+            .values("month", "year")
+            .annotate(**self._aggregations)
+            .order_by("year", "month")
         )
         return list(queryset)
 
