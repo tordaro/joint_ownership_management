@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 class UsagePrice(models.Model):
     nok_pr_kwh = models.DecimalField(_("Price per kWh [NOK/kWh]"), max_digits=10, decimal_places=7)
-    start_date = models.DateField(_("Start date"))
+    start_date = models.DateField(_("Start date"), unique=True)
 
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated At"), auto_now=True)

@@ -11,7 +11,7 @@ class GridPrice(models.Model):
     night_fee = models.DecimalField(_("Night fee per kWh [NOK/kWh]"), max_digits=10, decimal_places=7)
     day_hour_from = models.IntegerField(_("Start hour for day fee"), validators=[MinValueValidator(0), MaxValueValidator(23)])
     night_hour_from = models.IntegerField(_("Start hour for night fee"), validators=[MinValueValidator(0), MaxValueValidator(23)])
-    start_date = models.DateField(_("Start date"))
+    start_date = models.DateField(_("Start date"), unique=True)
 
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
