@@ -1,5 +1,5 @@
 from django.contrib import admin
-from car_charging.models import ChargingSession, EnergyDetails, SpotPrice
+from car_charging.models import ChargingSession, EnergyDetails, SpotPrice, CostDetails, GridPrice, UsagePrice, SpotPriceRefund
 
 
 class ChargingSessionAdmin(admin.ModelAdmin):
@@ -18,10 +18,68 @@ class EnergyDetailsAdmin(admin.ModelAdmin):
 
 class SpotPricesAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
-    list_display = ("id", "nok_pr_kwh", "eur_pr_kwh", "exchange_rate", "price_area", "start_time")
+    list_display = ("id", "nok_pr_kwh", "price_area", "start_time")
     list_filter = ("start_time", "created_at")
+
+
+class GridPriceAdmin(admin.ModelAdmin):
+    readonly_fields = ("created_at", "updated_at")
+    list_display = ("id", "day_fee", "night_fee", "day_hour_from", "night_hour_from", "start_date", "created_at")
+    list_filter = ("start_date",)
+
+
+class UsagePriceAdmin(admin.ModelAdmin):
+    readonly_fields = ("created_at", "updated_at")
+    list_display = ("id", "nok_pr_kwh", "start_date", "created_at")
+    list_filter = ("start_date",)
+
+
+class SpotPriceRefundAdmin(admin.ModelAdmin):
+    readonly_fields = ("created_at", "updated_at")
+    list_display = ("id", "deduction_threshold", "reduction_factor", "start_date", "created_at")
+    list_filter = ("start_date",)
+
+
+class CostDetailsAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        "energy",
+        "timestamp",
+        "price_area",
+        "spot_price_nok",
+        "grid_price_nok",
+        "usage_price_nok",
+        "fund_price_nok",
+        "refund_price_nok",
+        "spot_cost",
+        "grid_cost",
+        "usage_cost",
+        "fund_cost",
+        "refund",
+        "total_cost",
+        "user_full_name",
+        "user_id",
+        "created_at",
+        "updated_at",
+    )
+    list_display = (
+        "energy_detail",
+        "energy",
+        "timestamp",
+        "spot_cost",
+        "grid_cost",
+        "usage_cost",
+        "fund_cost",
+        "refund",
+        "total_cost",
+        "user_full_name",
+    )
+    list_filter = ("timestamp", "user_full_name", "user_id")
 
 
 admin.site.register(ChargingSession, ChargingSessionAdmin)
 admin.site.register(EnergyDetails, EnergyDetailsAdmin)
 admin.site.register(SpotPrice, SpotPricesAdmin)
+admin.site.register(CostDetails, CostDetailsAdmin)
+admin.site.register(GridPrice, GridPriceAdmin)
+admin.site.register(UsagePrice, UsagePriceAdmin)
+admin.site.register(SpotPriceRefund, SpotPriceRefundAdmin)

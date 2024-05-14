@@ -14,8 +14,8 @@ class EnergyDetails(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
-    def get_hour(self) -> datetime:
-        """Get the hour for the given timestamp, if spot price is not null."""
+    def get_hourly_timestamp(self) -> datetime:
+        """Get the timestamp with hourly precision."""
         return self.timestamp.replace(minute=0, second=0, microsecond=0)
 
     def __str__(self):

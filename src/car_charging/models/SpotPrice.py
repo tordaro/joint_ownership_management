@@ -1,4 +1,6 @@
+from datetime import datetime
 from decimal import Decimal
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -17,7 +19,11 @@ class SpotPrice(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
-    def get_price(self) -> Decimal:
+    def get_price(self, timestamp: datetime, price_area: int) -> Decimal:
+        if timestamp < self.start_time:
+            raise ValidationError(f"Timestamp {timestamp} must be greater than start date {self.start_time}.")
+        if price_area != self.price_area:
+            raise ValidationError(f"Wrong price area: {price_area} != {self.price_area}")
         return self.nok_pr_kwh
 
     def __str__(self):
