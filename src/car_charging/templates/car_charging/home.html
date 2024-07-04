@@ -1,10 +1,35 @@
-{% extends "car_charging/base.html" %} 
+{% extends "car_charging/base.html" %}
 
-{% block title %}Home{% endblock %} 
+{% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
   <h1>Welcome to JOM</h1>
   <p>This is the homepage.</p>
-</div>
+  
+  {% if user.is_authenticated %}
+    <div class="user-info">
+      <h2>Hello, {{ user.username }}!</h2>
+      <p>Here are your details:</p>
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Monthly Costs</h5>
+          <p class="card-text">Your monthly cost: {{ monthly_cost }}</p>
+        </div>
+      </div>
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Charging History</h5>
+          <p class="card-text">Total charges: {{ charging_history.count }}</p>
+          <a href="{#% url 'charging_history' %#}" class="btn btn-primary">View Full History</a>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <p>Please <a href="{#% url 'login' %#}">log in</a> to see your monthly costs and charging history.</p>
+  {% endif %}
+
+  <div class="mt-4">
+    <a href="{#% url 'spot_prices' %#}" class="btn btn-info">View Spot Prices</a>
+  </div>
 {% endblock %}
+
