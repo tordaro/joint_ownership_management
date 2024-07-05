@@ -19,8 +19,8 @@
       <div class="card mb-3">
         <div class="card-body">
           <h5 class="card-title">Charging History</h5>
-          <p class="card-text">Total charges: {{ charging_history.count }}</p>
-          <a href="{#% url 'charging_history' %#}" class="btn btn-primary">View Full History</a>
+          <p class="card-text">Total sessions: {{ charging_sessions_count }}</p>
+          <a href="{% url 'charging:charging_sessions' %}" class="btn btn-primary">View Full History</a>
         </div>
       </div>
     </div>

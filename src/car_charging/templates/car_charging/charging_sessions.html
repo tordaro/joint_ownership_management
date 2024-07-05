@@ -1,0 +1,27 @@
+{% extends "car_charging/base.html" %} {% block title %}Charging History{% endblock %} 
+
+{% block content %}
+<h1>Charging History</h1>
+<table class="table table-dark table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Session ID</th>
+      <th scope="col">Device Name</th>
+      <th scope="col">Start Date Time</th>
+      <th scope="col">End Date Time</th>
+      <th scope="col">Energy (kWh)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for session in charging_sessions %}
+    <tr>
+      <td>{{ session.session_id }}</td>
+      <td>{{ session.device_name }}</td>
+      <td>{{ session.start_date_time }}</td>
+      <td>{{ session.end_date_time }}</td>
+      <td>{{ session.energy }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
