@@ -2,24 +2,24 @@
 
 {% block content %}
 <h1>Charging History</h1>
-<table class="table table-dark table-striped">
+<table id="chargingSessionsTable" class="table table-dark table-striped">
   <thead>
     <tr>
-      <th scope="col">Session ID</th>
+      <th scope="col">User</th>
       <th scope="col">Device Name</th>
+      <th scope="col">Energy (kWh)</th>
       <th scope="col">Start Date Time</th>
       <th scope="col">End Date Time</th>
-      <th scope="col">Energy (kWh)</th>
     </tr>
   </thead>
   <tbody>
     {% for session in charging_sessions %}
     <tr>
-      <td>{{ session.session_id }}</td>
+      <td>{{ session.user_full_name }}</td>
       <td>{{ session.device_name }}</td>
-      <td>{{ session.start_date_time }}</td>
-      <td>{{ session.end_date_time }}</td>
-      <td>{{ session.energy }}</td>
+      <td>{{ session.energy|floatformat:1 }}</td>
+      <td data-order="{{ session.start_date_time|date:"Y-m-d H:i:s" }}">{{ session.start_date_time|date:"d-m-y H:i" }}</td>
+      <td data-order="{{ session.end_date_time|date:"Y-m-d H:i:s" }}">{{ session.end_date_time|date:"d-m-y H:i" }}</td>
     </tr>
     {% endfor %}
   </tbody>

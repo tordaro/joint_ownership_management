@@ -34,7 +34,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="{#% url 'home' %#}">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="{% url 'charging:home' %}">Home<span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{#% url 'about' %#}">About</a>
@@ -74,7 +74,11 @@
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#chargingSessionsTable').DataTable();
+            $('#chargingSessionsTable').DataTable({
+                "order": [[3, "desc"]],
+                "paging": true,
+                "pagingType": "simple_numbers"
+            });
         });
     </script>
     {% block extra_js %}{% endblock %}
