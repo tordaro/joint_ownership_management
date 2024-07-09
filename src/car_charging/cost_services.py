@@ -28,10 +28,10 @@ def create_cost_details(from_date: datetime | None = None, to_date: datetime | N
     for energy_detail in energy_details:
         price_area = energy_detail.charging_session.price_area
         hourly_timestamp = energy_detail.get_hourly_timestamp()
-        spot_price = spot_prices.filter(price_area=price_area, start_time=hourly_timestamp).first()  # Assuming ordering -start_time
-        grid_price = grid_prices.filter(start_date__lte=energy_detail.timestamp.date()).first()  # Assuming ordering -start_date
-        usage_price = usage_prices.filter(start_date__lte=energy_detail.timestamp.date()).first()  # Assuming ordering -start_date
-        refund_price = refund_prices.filter(start_date__lte=energy_detail.timestamp.date()).first()  # Assuming ordering -start_date
+        spot_price = spot_prices.filter(price_area=price_area, start_time=hourly_timestamp).order_by("-start_time").first()
+        grid_price = grid_prices.filter(start_date__lte=energy_detail.timestamp.date()).order_by("-start_date").first()
+        usage_price = usage_prices.filter(start_date__lte=energy_detail.timestamp.date()).order_by("-start_date").first()
+        refund_price = refund_prices.filter(start_date__lte=energy_detail.timestamp.date()).order_by("-start_date").first()
 
         cost_detail, is_created = CostDetails.objects.get_or_create(
             energy_detail=energy_detail, spot_price=spot_price, grid_price=grid_price, usage_price=usage_price, spot_price_refund=refund_price
