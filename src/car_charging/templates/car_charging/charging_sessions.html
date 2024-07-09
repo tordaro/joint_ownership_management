@@ -10,6 +10,7 @@
       <th scope="col">Energy (kWh)</th>
       <th scope="col">Start Date Time</th>
       <th scope="col">End Date Time</th>
+      <th scope="col">Session</th>
     </tr>
   </thead>
   <tbody>
@@ -20,6 +21,11 @@
       <td>{{ session.energy|floatformat:1 }}</td>
       <td data-order="{{ session.start_date_time|date:"Y-m-d H:i:s" }}">{{ session.start_date_time|date:"d-m-y H:i" }}</td>
       <td data-order="{{ session.end_date_time|date:"Y-m-d H:i:s" }}">{{ session.end_date_time|date:"d-m-y H:i" }}</td>
+      <td>
+        <a href="{% url 'charging:energy_details' %}?session_id={{ session.id }}">
+          {{ session.id }}
+        </a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>
