@@ -1,12 +1,13 @@
 from django.urls import path
 
-from car_charging.views import home, charging_sessions
+from car_charging.views import home, charging_sessions, EnergyDetailsListView
 
 app_name = "charging"
 
 urlpatterns = [
     path("", home, name="home"),
     path("charging_sessions", charging_sessions, name="charging_sessions"),
+    path("energy_details", EnergyDetailsListView.as_view(), name="energy_details"),
     # path("token", auth_token.token_status, name="token_status"),
     # path("renew_token", auth_token.renew_token, name="renew_token"),
     # path("history", history.ChargeHistoryView.as_view(), name="history"),

@@ -1,0 +1,37 @@
+{% extends "car_charging/base.html" %} {% block title %}Energy Details{% endblock %} {% block content %}
+{% if charging_session %}
+    <h1>Energy Details for Session {{ charging_session.id }}</h1>
+    <div class="card mb-3">
+      <div class="card-header">
+        Charging Session Details
+      </div>
+      <div class="card-body">
+        <p><strong>User:</strong> {{ charging_session.user_full_name }}</p>
+        <p><strong>Device Name:</strong> {{ charging_session.device_name }}</p>
+        <p><strong>Start Date Time:</strong> {{ charging_session.start_date_time|date:"d-m-y H:i" }}</p>
+        <p><strong>End Date Time:</strong> {{ charging_session.end_date_time|date:"d-m-y H:i" }}</p>
+        <p><strong>Energy (kWh):</strong> {{ charging_session.energy|floatformat:1 }}</p>
+      </div>
+    </div>
+  {% else %}
+    <h1>Energy Details</h1>
+  {% endif %}
+<table id="energyDetailsTable" class="table table-dark table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Timestamp</th>
+      <th scope="col">Energy (kWh)</th>
+      <th scope="col">Charging Session</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for detail in energy_details %}
+    <tr>
+      <td>{{ detail.timestamp|date:"d-m-y H:i" }}</td>
+      <td>{{ detail.energy|floatformat:1 }}</td>
+      <td>{{ detail.charging_session }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

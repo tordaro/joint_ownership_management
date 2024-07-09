@@ -74,11 +74,17 @@
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#chargingSessionsTable').DataTable({
-                "order": [[3, "desc"]],
-                "paging": true,
-                "pagingType": "simple_numbers"
-            });
+          $('#chargingSessionsTable').DataTable({
+            "order": [[3, "desc"]],
+            "paging": true,
+            "pagingType": "simple_numbers"
+          });
+
+          $('#energyDetailsTable').DataTable({
+            "order": [[0, "desc"]],
+            "paging": true,
+            "pagingType": "simple_numbers"
+          });
         });
     </script>
     {% block extra_js %}{% endblock %}
