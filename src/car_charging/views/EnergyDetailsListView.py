@@ -1,11 +1,12 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
 from car_charging.models import EnergyDetails
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from car_charging.models import ChargingSession
 
 
-class EnergyDetailsListView(ListView):
+class EnergyDetailsListView(LoginRequiredMixin, ListView):
     model = EnergyDetails
     template_name = "car_charging/energy_details.html"
     context_object_name = "energy_details"
