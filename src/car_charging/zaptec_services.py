@@ -1,12 +1,9 @@
 import os
-import logging
 import requests
 from datetime import datetime
 from django.utils.timezone import datetime, localtime
 
 from car_charging.models import ChargingSession, EnergyDetails, ZaptecToken
-
-logger = logging.getLogger("django")
 
 
 def request_charge_history(access_token: str, installation_id: str, from_date: datetime, to_date: datetime) -> requests.Response:
@@ -103,7 +100,6 @@ def create_charging_sessions(api_data: list[dict]) -> list[ChargingSession]:
         if not is_created:
             continue
         else:
-            logger.info(f"Created charging session {session}")
             new_sessions.append(session)
             energy_details = session_data["EnergyDetails"]
 
@@ -113,7 +109,6 @@ def create_charging_sessions(api_data: list[dict]) -> list[ChargingSession]:
                     energy=detail_data["Energy"],
                     timestamp=parse_zaptec_datetime(detail_data["Timestamp"]),  # Time aware UTC+0 datetime
                 )
-                logger.info(f"Created energy detail {energy_detail}")
 
     return new_sessions
 
