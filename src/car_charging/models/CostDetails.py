@@ -14,7 +14,7 @@ class CostDetails(models.Model):
     spot_price_refund = models.ForeignKey("SpotPriceRefund", on_delete=models.SET_NULL, null=True)
 
     session_id = models.IntegerField(_("Charging session"), editable=False)
-    energy = models.DecimalField(_("Energy [kWh]"), editable=False, max_digits=8, decimal_places=6)
+    energy = models.DecimalField(_("Energy [kWh]"), editable=False, max_digits=10, decimal_places=6)
     timestamp = models.DateTimeField(verbose_name=_("Timestamp"), editable=False)
     price_area = models.IntegerField(_("Price area"), editable=False)
     spot_price_nok = models.DecimalField(_("Spot price per kWh [NOK/kWh]"), editable=False, max_digits=10, decimal_places=7)
