@@ -1,8 +1,5 @@
-import logging
 from datetime import datetime
 from car_charging.models import SpotPrice, GridPrice, CostDetails, EnergyDetails, UsagePrice, SpotPriceRefund
-
-logger = logging.getLogger("django")
 
 
 def create_cost_details(from_date: datetime | None = None, to_date: datetime | None = None) -> None:
@@ -36,5 +33,3 @@ def create_cost_details(from_date: datetime | None = None, to_date: datetime | N
         cost_detail, is_created = CostDetails.objects.get_or_create(
             energy_detail=energy_detail, spot_price=spot_price, grid_price=grid_price, usage_price=usage_price, spot_price_refund=refund_price
         )
-        if is_created:
-            logger.info(f"Inserted cost detail {cost_detail}.")
