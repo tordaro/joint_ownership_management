@@ -20,3 +20,5 @@ class Command(BaseCommand):
             print(f"Date: {spot_price.start_time}")
             print(f"Price area: {price_area}")
             print(f"Price [NOK]: {spot_price.nok_pr_kwh}")
+        else:
+            print(f"No existing spot prices in price area {price_area}")
