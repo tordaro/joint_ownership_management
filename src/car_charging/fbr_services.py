@@ -27,7 +27,7 @@ def load_spot_prices(file_path: Path) -> None:
             start_time = parse_datetime(row[0])  # type: ignore
             nok_pr_kwh = str(row[i]).replace(",", ".")
             spot_price = SpotPrice(start_time=start_time, price_area=i, nok_pr_kwh=nok_pr_kwh)
-            spot_prices[str(start_time)] = spot_price
+            spot_prices[f"{start_time}_pa{i}"] = spot_price
             logger.info(f"Adding spot price for {spot_price.start_time} price area {spot_price.price_area}.")
 
     SpotPrice.objects.bulk_create(list(spot_prices.values()))
