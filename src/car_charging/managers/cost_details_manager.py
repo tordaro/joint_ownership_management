@@ -62,7 +62,7 @@ class CostDetailsManager(models.Manager):
         queryset = self._add_filters(queryset, user_id, user_full_name, from_date, to_date)
         queryset = (
             queryset.annotate(month=TruncMonth("timestamp"), year=TruncYear("timestamp"))
-            .values("month", "year")
+            .values("year", "month")
             .annotate(**self._aggregations)
             .order_by("year", "month")
         )
@@ -76,7 +76,7 @@ class CostDetailsManager(models.Manager):
         queryset = self._add_filters(queryset, user_id, user_full_name, from_date, to_date)
         queryset = (
             queryset.annotate(month=TruncMonth("timestamp"), year=TruncYear("timestamp"))
-            .values("user_id", "month", "year")
+            .values("user_id", "year", "month")
             .annotate(user=Max("user_full_name"), **self._aggregations)
             .order_by("user", "year", "month")
         )
