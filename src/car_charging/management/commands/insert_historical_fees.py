@@ -22,7 +22,9 @@ class Command(BaseCommand):
         UsagePrice.objects.get_or_create(nok_pr_kwh=0.1584, start_date=make_aware(datetime(2023, 4, 1)))
         UsagePrice.objects.get_or_create(nok_pr_kwh=0.0951, start_date=make_aware(datetime(2024, 1, 1)))
         UsagePrice.objects.get_or_create(nok_pr_kwh=0.1644, start_date=make_aware(datetime(2024, 4, 1)))
+        UsagePrice.objects.get_or_create(nok_pr_kwh=0.0979, start_date=make_aware(datetime(2025, 1, 1)))
+        UsagePrice.objects.get_or_create(nok_pr_kwh=0.1693, start_date=make_aware(datetime(2025, 4, 1)))
 
         SpotPriceRefund.objects.get_or_create(deduction_threshold=0.0, reduction_factor=0.0, start_date=make_aware(datetime(2021, 1, 1)))
         SpotPriceRefund.objects.get_or_create(deduction_threshold=0.73, reduction_factor=0.9, start_date=make_aware(datetime(2023, 9, 1)))
-        SpotPriceRefund.objects.get_or_create(deduction_threshold=0.0, reduction_factor=0.0, start_date=make_aware(datetime(2025, 1, 1)))
+        SpotPriceRefund.objects.get_or_create(deduction_threshold=0.75, reduction_factor=0.9, start_date=make_aware(datetime(2025, 1, 1)))
