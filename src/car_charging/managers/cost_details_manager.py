@@ -9,7 +9,6 @@ from django.db.models.aggregates import Min, Sum, Max, Count
 class CostDetailsManager(models.Manager):
 
     _aggregations = {
-        "user": Max("user_full_name"),
         "energy": Sum("energy"),
         "spot_cost": Sum("spot_cost"),
         "grid_cost": Sum("grid_cost"),
@@ -50,7 +49,7 @@ class CostDetailsManager(models.Manager):
         queryset = (
             queryset.annotate(month=TruncMonth("timestamp"), year=TruncYear("timestamp"))
             .values("user_id")
-            .annotate(**self._aggregations)
+            .annotate(user=Max("user_full_name"), **self._aggregations)
             .order_by("user")
         )
         return list(queryset)
@@ -78,7 +77,7 @@ class CostDetailsManager(models.Manager):
         queryset = (
             queryset.annotate(month=TruncMonth("timestamp"), year=TruncYear("timestamp"))
             .values("user_id", "month", "year")
-            .annotate(**self._aggregations)
+            .annotate(user=Max("user_full_name"), **self._aggregations)
             .order_by("user", "year", "month")
         )
         return list(queryset)
