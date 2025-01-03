@@ -9,8 +9,8 @@ class EnergyDetailsTests(TestCase):
         self.price_area = 1
         self.price_area_name = f"no{self.price_area}"
         self.datetime_1 = make_aware(datetime(2022, 1, 1, 1, 30, 45))
-        self.datetime_2 = make_aware(datetime(2022, 1, 2, 1, 29, 15))
-        self.datetime_3 = self.datetime_2 + timedelta(days=10)
+        self.datetime_2 = make_aware(datetime(2022, 1, 2, 5, 29, 15))
+        self.datetime_3 = self.datetime_2 + timedelta(hours=10)
         self.user_id_1 = uuid.uuid4()
         self.user_id_2 = uuid.uuid4()
         self.session_1 = ChargingSession.objects.create(
@@ -42,4 +42,10 @@ class EnergyDetailsTests(TestCase):
 
     def test_get_hourly_timestamp(self):
         """Test that get_hourly_timestamp returns timestamp with hourly precision."""
-        self.assertEqual(self.energy_detail_1.get_hourly_timestamp(), self.datetime_1.replace(minute=0, second=0, microsecond=0))
+        datetime_1_hourly = self.datetime_1.replace(minute=0, second=0, microsecond=0)
+        datetime_2_hourly = self.datetime_2.replace(minute=0, second=0, microsecond=0)
+        datetime_3_hourly = self.datetime_3.replace(minute=0, second=0, microsecond=0)
+
+        self.assertEqual(self.energy_detail_1.get_hourly_timestamp(), datetime_1_hourly)
+        self.assertEqual(self.energy_detail_2.get_hourly_timestamp(), datetime_2_hourly)
+        self.assertEqual(self.energy_detail_3.get_hourly_timestamp(), datetime_3_hourly)
