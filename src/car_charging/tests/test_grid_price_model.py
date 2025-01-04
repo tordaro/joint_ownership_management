@@ -7,7 +7,7 @@ from car_charging.models import GridPrice
 
 class GridPriceTests(TestCase):
     def setUp(self) -> None:
-        self.datetime_1 = make_aware(datetime(2024, 3, 1, 10))
+        self.datetime_1 = make_aware(datetime(2024, 3, 1, 6))
         self.grid_price_1 = GridPrice.objects.create(
             day_fee=Decimal("0.50"), night_fee=Decimal("0.30"), day_hour_from=6, night_hour_from=22, start_date=self.datetime_1.date()
         )
@@ -20,7 +20,7 @@ class GridPriceTests(TestCase):
 
     def test_get_night_price(self):
         """Test that the get price method returns nighttime fee."""
-        datetime_night = make_aware(datetime(2025, 1, 1, 3))
+        datetime_night = make_aware(datetime(2025, 1, 1, 22))
         price_2025 = self.grid_price_1.get_price(datetime_night)
 
         self.assertEqual(self.grid_price_1.night_fee, price_2025)
