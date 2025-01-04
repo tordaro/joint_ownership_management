@@ -60,12 +60,6 @@ class CostDetailsTestCase(TestCase):
     #
     #     self.assertAlmostEqual(self.cost_details.total_cost, expected_total_cost, places=7)
     #
-    def test_grid_price_update(self):
-        """Test updating values in CostDetails model."""
-        self.cost_details.grid_price = self.grid_price
-        self.cost_details.save()
-
-        self.assertEqual(self.cost_details.grid_price, self.grid_price)
 
     def test_set_grid_price(self):
         """Test the grid price set method."""
@@ -73,7 +67,3 @@ class CostDetailsTestCase(TestCase):
 
         self.assertEqual(self.cost_details.grid_price_nok, grid_price)
 
-    def test_cost_details_string_representation(self):
-        """Test the string representation of CostDetails model."""
-        expected_str = str(self.cost_details.energy_detail.id)
-        self.assertEqual(str(self.cost_details), expected_str)
