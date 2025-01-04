@@ -21,7 +21,7 @@ class SpotPrice(models.Model):
 
     def get_price(self, timestamp: datetime, price_area: int) -> Decimal:
         if timestamp < self.start_time:
-            raise ValidationError(f"Timestamp {timestamp} must be greater than start date {self.start_time}.")
+            raise ValidationError(f"Timestamp {timestamp} can not be smaller than start date {self.start_time}.")
         if price_area != self.price_area:
             raise ValidationError(f"Wrong price area: {price_area} != {self.price_area}")
         return self.nok_pr_kwh
