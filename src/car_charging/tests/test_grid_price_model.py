@@ -14,9 +14,9 @@ class GridPriceTests(TestCase):
 
     def test_get_day_price(self):
         """Test that the get price method returns daytime fee."""
-        price_2025 = self.grid_price_1.get_price(self.datetime_1)
+        price_2024 = self.grid_price_1.get_price(self.datetime_1)
 
-        self.assertEqual(self.grid_price_1.day_fee, price_2025)
+        self.assertEqual(self.grid_price_1.day_fee, price_2024)
 
     def test_get_night_price(self):
         """Test that the get price method returns nighttime fee."""
@@ -27,7 +27,7 @@ class GridPriceTests(TestCase):
 
     def test_get_price_validation_error(self):
         """Test that the get price method raises a validation error if the timestamp is less than the start date."""
-        datetime_2 = make_aware(datetime(2024, 2, 29, 10))
+        datetime_too_early = make_aware(datetime(2024, 2, 29, 10))
 
         with self.assertRaises(ValidationError):
-            self.grid_price_1.get_price(datetime_2)
+            self.grid_price_1.get_price(datetime_too_early)
