@@ -48,6 +48,16 @@ class CostDetailsTestCase(TestCase):
         self.assertEqual(self.cost_details.usage_price, self.usage_price)
         self.assertEqual(self.cost_details.spot_price_refund, self.spot_price_refund)
 
+    def test_copy_values(self):
+        """Test that relevant values from the related models are copied to the cost detail."""
+        self.assertEqual(self.cost_details.energy, self.energy_details.energy)
+        self.assertEqual(self.cost_details.timestamp, self.energy_details.timestamp)
+        self.assertEqual(self.cost_details.session_id, self.charging_session.id)
+        self.assertEqual(self.cost_details.price_area, self.charging_session.price_area)
+
+    def test_set_spot_price(self):
+        """Test that the set spot price method."""
+        self.assertEqual(self.cost_details.spot_price_nok, self.spot_price.nok_pr_kwh)
 
     def test_set_grid_price(self):
         """Test the grid price set method."""
@@ -55,3 +65,58 @@ class CostDetailsTestCase(TestCase):
 
         self.assertEqual(self.cost_details.grid_price_nok, grid_price)
 
+    def test_set_usage_price(self):
+        """Test the usage price set method."""
+        usage_price = self.usage_price.get_price(self.datetime_1)
+
+        self.assertEqual(self.cost_details.usage_price_nok, usage_price)
+
+    def test_set_user(self):
+        """Test the set user method."""
+        self.assertEqual(self.cost_details.user_id, self.charging_session.user_id)
+        self.assertEqual(self.cost_details.user_full_name, self.charging_session.user_full_name)
+
+    def test_set_spot_cost(self):
+        """Test that the set spot cost method calculates the correct price."""
+        energy = self.energy_details.energy
+        spot_price_nok = self.spot_price.nok_pr_kwh
+
+        self.assertEqual(self.cost_details.spot_cost, energy * spot_price_nok)
+
+    def test_set_grid_cost(self):
+        """Test that the set grid cost method calculates the correct price."""
+        energy = self.energy_details.energy
+        grid_fee = self.grid_price.day_fee
+
+        self.assertEqual(self.cost_details.grid_cost, energy * grid_fee)
+
+    def test_set_usage_cost(self):
+        """Test that the set usage cost method calculates the correct price."""
+        energy = self.energy_details.energy
+        usage_price_nok = self.usage_price.nok_pr_kwh
+
+        self.assertEqual(self.cost_details.usage_cost, energy * usage_price_nok)
+
+    def test_set_fund_cost(self):
+        """Test that the set fund cost method calculates the correct price."""
+        energy = self.energy_details.energy
+        fund_price_nok = self.cost_details.fund_price_nok
+
+        self.assertEqual(self.cost_details.fund_cost, energy * fund_price_nok)
+
+    def test_set_spot_price_refund(self):
+        """Test the spot price refund set method."""
+        spot_price_refund = self.spot_price_refund.calculate_refund_price(self.datetime_1, self.spot_price.get_price(self.datetime_1, 4))
+
+        self.assertEqual(self.cost_details.refund_price_nok, spot_price_refund)
+
+    def test_set_total_cost(self):
+        """Test that the set total cost method calculates the correct total cost."""
+        spot_cost = self.cost_details.spot_cost
+        grid_cost = self.cost_details.grid_cost
+        usage_cost = self.cost_details.usage_cost
+        fund_cost = self.cost_details.fund_cost
+        refund = self.cost_details.refund
+        total_cost = spot_cost + grid_cost + usage_cost + fund_cost - refund
+
+        self.assertEqual(self.cost_details.total_cost, total_cost)
