@@ -8,6 +8,7 @@ from car_charging.models.ChargingSession import ChargingSession
 
 
 class CostDetailsTestCase(TestCase):
+    """Test case for cost details methods. All methods are triggered by the save method in the setup."""
 
     def setUp(self):
         self.datetime_1 = make_aware(datetime(2025, 1, 1, 10))
