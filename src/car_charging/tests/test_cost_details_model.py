@@ -48,18 +48,6 @@ class CostDetailsTestCase(TestCase):
         self.assertEqual(self.cost_details.usage_price, self.usage_price)
         self.assertEqual(self.cost_details.spot_price_refund, self.spot_price_refund)
 
-    # def test_cost_details_calculation(self):
-    #     """Test that total cost is correctly calculated."""
-    #     self.cost_details.save()  # Trigger the calculation methods
-    #
-    #     expected_total_cost = (
-    #         self.energy_details.energy * self.grid_price.get_price(self.energy_details.timestamp)
-    #         + self.energy_details.energy * self.usage_price.get_price(self.energy_details.timestamp)
-    #         - self.energy_details.energy * self.spot_price_refund.calculate_refund_price(self.energy_details.timestamp, Decimal("0.40"))
-    #     )
-    #
-    #     self.assertAlmostEqual(self.cost_details.total_cost, expected_total_cost, places=7)
-    #
 
     def test_set_grid_price(self):
         """Test the grid price set method."""
