@@ -30,7 +30,7 @@ class CostDetailsTestCase(TestCase):
         self.spot_price_refund = SpotPriceRefund.objects.create(
             deduction_threshold=Decimal("0.35"), reduction_factor=Decimal("0.1"), start_date=self.datetime_1.date()
         )
-        self.spot_price = SpotPrice.objects.create(nok_pr_kwh=Decimal("0.45"), start_time=self.datetime_1, price_area=4)
+        self.spot_price = SpotPrice.objects.create(nok_pr_kwh=Decimal("0.95"), start_time=self.datetime_1, price_area=4)
 
         self.cost_details = CostDetails.objects.create(
             energy_detail=self.energy_details,
