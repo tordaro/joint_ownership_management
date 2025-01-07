@@ -1,7 +1,6 @@
 from datetime import datetime
 from django.db import models
-from django.db.models import DecimalField, F, QuerySet
-from django.db.models import ExpressionWrapper
+from django.db.models import DecimalField, F, QuerySet, ExpressionWrapper, When, DecimalField, Value, Case
 from django.db.models.functions import TruncMonth, TruncYear
 from django.db.models.aggregates import Min, Sum, Max, Count
 
@@ -9,7 +8,6 @@ from django.db.models.aggregates import Min, Sum, Max, Count
 class CostDetailsManager(models.Manager):
 
     _aggregations = {
-        "user": Max("user_full_name"),
         "energy": Sum("energy"),
         "spot_cost": Sum("spot_cost"),
         "grid_cost": Sum("grid_cost"),
@@ -17,7 +15,9 @@ class CostDetailsManager(models.Manager):
         "fund_cost": Sum("fund_cost"),
         "refund": Sum("refund"),
         "total_cost": Sum("total_cost"),
-        "cost_pr_kwh": ExpressionWrapper(F("total_cost") / F("energy"), output_field=DecimalField()),
+        "cost_pr_kwh": ExpressionWrapper(
+            Case(When(energy__gt=0, then=F("total_cost") / F("energy")), default=Value(0), output_field=DecimalField()), output_field=DecimalField()
+        ),
         "charging_sessions": Count("session_id", distinct=True),
         "min_timestamp": Min("timestamp"),
         "max_timestamp": Max("timestamp"),
@@ -50,7 +50,7 @@ class CostDetailsManager(models.Manager):
         queryset = (
             queryset.annotate(month=TruncMonth("timestamp"), year=TruncYear("timestamp"))
             .values("user_id")
-            .annotate(**self._aggregations)
+            .annotate(user=Max("user_full_name"), **self._aggregations)
             .order_by("user")
         )
         return list(queryset)
@@ -63,7 +63,7 @@ class CostDetailsManager(models.Manager):
         queryset = self._add_filters(queryset, user_id, user_full_name, from_date, to_date)
         queryset = (
             queryset.annotate(month=TruncMonth("timestamp"), year=TruncYear("timestamp"))
-            .values("month", "year")
+            .values("year", "month")
             .annotate(**self._aggregations)
             .order_by("year", "month")
         )
@@ -77,8 +77,8 @@ class CostDetailsManager(models.Manager):
         queryset = self._add_filters(queryset, user_id, user_full_name, from_date, to_date)
         queryset = (
             queryset.annotate(month=TruncMonth("timestamp"), year=TruncYear("timestamp"))
-            .values("user_id", "month", "year")
-            .annotate(**self._aggregations)
+            .values("user_id", "year", "month")
+            .annotate(user=Max("user_full_name"), **self._aggregations)
             .order_by("user", "year", "month")
         )
         return list(queryset)

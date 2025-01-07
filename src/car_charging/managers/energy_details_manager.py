@@ -4,7 +4,7 @@ from django.db.models.aggregates import Sum, Max
 
 
 class EnergyDetailsManager(models.Manager):
-    def calculate_total_cost_by_user(
+    def calculate_total_energy_by_user(
         self, user_id: str | None = None, start_date: datetime | None = None, end_date: datetime | None = None
     ) -> list[dict]:
         """Calculate the total cost by each user within a time range."""
@@ -19,8 +19,8 @@ class EnergyDetailsManager(models.Manager):
         if user_id:
             queryset = queryset.filter(charging_session__user_id=user_id)
 
-        total_cost = queryset.values("charging_session__user_id").annotate(
-            total_cost=Sum("cost"), total_energy=Sum("energy"), user_full_name=Max("charging_session__user_full_name")
+        total_energy = queryset.values("charging_session__user_id").annotate(
+            total_energy=Sum("energy"), user_full_name=Max("charging_session__user_full_name"), user_email=Max("charging_session__user_email")
         )
 
-        return list(total_cost)
+        return list(total_energy)

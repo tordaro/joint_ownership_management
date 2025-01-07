@@ -65,19 +65,18 @@ class SpotPricesTest(TestCase):
     def test_get_unique_users_returns_unique_users(self):
         """Test that get_unique_users returns all unique users."""
         users = ChargingSession.objects.get_unique_users()
+        print(users)
         user1 = {
             "user_id": self.user_id_1,
             "user_full_name": "User Uno",
-            "user_name": "User1",
             "user_email": "user1@name.com",
         }
         user2 = {
             "user_id": self.user_id_2,
             "user_full_name": "User Dos",
-            "user_name": "User2",
             "user_email": "user2@name.com",
         }
-        user3 = {"user_id": None, "user_full_name": "", "user_name": "", "user_email": None}
+        user3 = {"user_id": None, "user_full_name": "", "user_email": None}
 
         self.assertIn(user1, users)
         self.assertIn(user2, users)

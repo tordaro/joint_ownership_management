@@ -8,7 +8,7 @@ from car_charging.managers.energy_details_manager import EnergyDetailsManager
 class EnergyDetails(models.Model):
     objects = EnergyDetailsManager()
     charging_session = models.ForeignKey("ChargingSession", on_delete=models.CASCADE)
-    energy = models.DecimalField(max_digits=8, decimal_places=6, verbose_name=_("Energy [kWh]"))
+    energy = models.DecimalField(max_digits=10, decimal_places=6, verbose_name=_("Energy [kWh]"))
     timestamp = models.DateTimeField(verbose_name=_("Timestamp"))
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
