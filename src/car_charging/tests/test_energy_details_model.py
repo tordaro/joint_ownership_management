@@ -5,6 +5,8 @@ from car_charging.models import ChargingSession, EnergyDetails
 
 
 class EnergyDetailsTests(TestCase):
+    """Test the energy details model methods."""
+
     def setUp(self):
         self.price_area = 1
         self.price_area_name = f"no{self.price_area}"
