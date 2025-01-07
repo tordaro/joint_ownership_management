@@ -8,7 +8,7 @@ from car_charging.models.ChargingSession import ChargingSession
 
 
 class CostDetailsTestCase(TestCase):
-    """Test case for cost details methods. All methods are triggered by the save method in the setup."""
+    """Test case for cost details methods. All methods are triggered by the save method, which is called by the create method, in the setup."""
 
     def setUp(self):
         self.datetime_1 = make_aware(datetime(2025, 1, 1, 10))
@@ -40,7 +40,6 @@ class CostDetailsTestCase(TestCase):
             usage_price=self.usage_price,
             spot_price_refund=self.spot_price_refund,
         )
-        self.cost_details.save()
 
     def test_cost_details_initialization(self):
         """Test initialization of CostDetails model."""
