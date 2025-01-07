@@ -6,6 +6,8 @@ from car_charging.models import UsagePrice
 
 
 class UsagePriceTests(TestCase):
+    """Test the usage price model methods."""
+
     def setUp(self) -> None:
         self.datetime_1 = make_aware(datetime(2024, 3, 1, 6))
         self.usage_price_1 = UsagePrice.objects.create(nok_pr_kwh=Decimal("0.42"), start_date=self.datetime_1.date())

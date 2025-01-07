@@ -6,6 +6,8 @@ from car_charging.models import GridPrice
 
 
 class GridPriceTests(TestCase):
+    """Test the grid price model methods."""
+
     def setUp(self) -> None:
         self.datetime_1 = make_aware(datetime(2024, 3, 1, 6))
         self.grid_price_1 = GridPrice.objects.create(
