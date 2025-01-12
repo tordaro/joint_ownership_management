@@ -1,10 +1,8 @@
 import uuid
 from django.utils.timezone import datetime, make_aware
 from django.test import TestCase
-from car_charging.models import EnergyDetails, GridPrice, SpotPrice, SpotPriceRefund, UsagePrice, CostDetails
 from decimal import Decimal
-
-from car_charging.models.ChargingSession import ChargingSession
+from car_charging.models import EnergyDetails, GridPrice, SpotPrice, SpotPriceRefund, UsagePrice, CostDetails, ChargingSession
 
 
 class CostDetailsTestCase(TestCase):
