@@ -2,6 +2,7 @@ import uuid
 from django.utils.timezone import datetime, make_aware
 from django.test import TestCase
 from decimal import Decimal
+from car_charging.cost_services import create_cost_details
 from car_charging.models import EnergyDetails, GridPrice, SpotPrice, SpotPriceRefund, UsagePrice, CostDetails, ChargingSession
 
 
@@ -10,7 +11,7 @@ class CostServicesTestCase(TestCase):
 
     def setUp(self):
         self.datetime_1 = make_aware(datetime(2025, 1, 1, 10))
-        self.datetime_2 = make_aware(datetime(2025, 1, 1, 15))
+        self.datetime_2 = make_aware(datetime(2025, 3, 1, 15))
 
         self.grid_price = GridPrice.objects.create(
             day_fee=Decimal("0.50"),
@@ -48,10 +49,37 @@ class CostServicesTestCase(TestCase):
             price_area=4,
         )
 
-        self.cost_details = CostDetails.objects.create(
-            energy_detail=self.energy_details,
-            spot_price=self.spot_price,
-            grid_price=self.grid_price,
-            usage_price=self.usage_price,
-            spot_price_refund=self.spot_price_refund,
+    def test_create_cost_details_all_good(self):
+        """Test all the create_cost_details method sets all the correct price instances."""
+        create_cost_details()
+
+        cost_details = CostDetails.objects.first()
+
+        self.assertEqual(cost_details.energy_detail, self.energy_details)
+        self.assertEqual(cost_details.spot_price, self.spot_price)
+        self.assertEqual(cost_details.grid_price, self.grid_price)
+        self.assertEqual(cost_details.usage_price, self.usage_price)
+        self.assertEqual(cost_details.spot_price_refund, self.spot_price_refund)
+    
+    def test_create_cost_details_sets_correct_grid_price(self):
+        """Test that the create_cost_details method sets the correct grid price instance."""
+        datetime_3 = make_aware(datetime(2024, 12, 1, 10))
+        GridPrice.objects.create(
+            day_fee=Decimal("0.40"),
+            night_fee=Decimal("0.20"),
+            day_hour_from=6,
+            night_hour_from=22,
+            start_date=self.datetime_2.date(),
         )
+        GridPrice.objects.create(
+            day_fee=Decimal("0.30"),
+            night_fee=Decimal("0.10"),
+            day_hour_from=6,
+            night_hour_from=22,
+            start_date=datetime_3.date(),
+        )
+
+        create_cost_details()
+        cost_details = CostDetails.objects.first()
+
+        self.assertEqual(cost_details.grid_price, self.grid_price)
