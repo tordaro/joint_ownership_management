@@ -146,3 +146,33 @@ class CostDetailsManagerTestCase(TestCase):
         self.assertEqual(len(cost_details), 1)
         self.assertEqual(cost_details[0].energy_detail.timestamp.date(), from_date.date())
 
+    def test_cost_by_user(self):
+        user_full_name = "Alice"
+        cost_details = CostDetails.objects.filter(energy_detail__charging_session__user_full_name__icontains=user_full_name)
+        sum_energy = sum([cost_detail.energy for cost_detail in cost_details])
+        sum_spot_cost = sum([cost_detail.spot_cost for cost_detail in cost_details])
+        sum_grid_cost = sum([cost_detail.grid_cost for cost_detail in cost_details])
+        sum_usage_cost = sum([cost_detail.usage_cost for cost_detail in cost_details])
+        sum_fund_cost = sum([cost_detail.fund_cost for cost_detail in cost_details])
+        sum_refund = sum([cost_detail.refund for cost_detail in cost_details])
+        sum_total_cost = sum([cost_detail.total_cost for cost_detail in cost_details])
+        cost_pr_kwh = sum_total_cost / sum_energy
+        num_sessions = len({cost_detail.session_id for cost_detail in cost_details})
+        min_timestamp = min([cost_detail.timestamp for cost_detail in cost_details])
+        max_timestamp = max([cost_detail.timestamp for cost_detail in cost_details])
+
+        result = CostDetails.objects.costs_by_user(user_full_name=user_full_name)
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["user"], user_full_name)
+        self.assertEqual(result[0]["energy"], sum_energy)
+        self.assertEqual(result[0]["spot_cost"], sum_spot_cost)
+        self.assertEqual(result[0]["grid_cost"], sum_grid_cost)
+        self.assertEqual(result[0]["usage_cost"], sum_usage_cost)
+        self.assertEqual(result[0]["fund_cost"], sum_fund_cost)
+        self.assertEqual(result[0]["refund"], sum_refund)
+        self.assertEqual(result[0]["total_cost"], sum_total_cost)
+        self.assertAlmostEqual(result[0]["cost_pr_kwh"], cost_pr_kwh, places=6)
+        self.assertEqual(result[0]["charging_sessions"], num_sessions)
+        self.assertEqual(result[0]["min_timestamp"], min_timestamp)
+        self.assertEqual(result[0]["max_timestamp"], max_timestamp)
