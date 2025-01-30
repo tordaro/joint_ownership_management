@@ -1,4 +1,3 @@
-
 import uuid
 from django.utils.timezone import datetime, make_aware
 from django.test import TestCase
@@ -15,15 +14,9 @@ class CostDetailsManagerTestCase(TestCase):
         self.datetime_3 = make_aware(datetime(2025, 4, 1, 10))
         self.datetime_4 = make_aware(datetime(2025, 9, 1, 18))
 
-        self.grid_price = GridPrice.objects.create(
-            day_fee=Decimal("0.50"),
-            night_fee=Decimal("0.30"),
-            day_hour_from=6,
-            night_hour_from=22,
-            start_date=self.datetime_1.date(),
-        )
-        self.charging_session = ChargingSession.objects.create(
-            user_full_name="Alice", # only relevant field
+        self.session_alice = ChargingSession.objects.create(
+            user_full_name="Alice",  # relevant field
+            user_id=uuid.uuid4(),  # relevant field
             session_id=uuid.uuid4(),
             charger_id=uuid.uuid4(),
             device_id=uuid.uuid4(),
@@ -32,8 +25,9 @@ class CostDetailsManagerTestCase(TestCase):
             price_area=4,
             energy=2.31,
         )
-        self.charging_session = ChargingSession.objects.create(
-            user_full_name="Bert", # only relevant field
+        self.session_bert = ChargingSession.objects.create(
+            user_full_name="Bert",  # relevant field
+            user_id=uuid.uuid4(),  # relevant field
             session_id=uuid.uuid4(),
             charger_id=uuid.uuid4(),
             device_id=uuid.uuid4(),
@@ -42,10 +36,12 @@ class CostDetailsManagerTestCase(TestCase):
             price_area=4,
             energy=2.31,
         )
-        self.energy_details = EnergyDetails.objects.create(
-            charging_session=self.charging_session,
-            energy=Decimal("15.5"),
-            timestamp=self.datetime_1,
+        self.grid_price = GridPrice.objects.create(
+            day_fee=Decimal("0.50"),
+            night_fee=Decimal("0.30"),
+            day_hour_from=6,
+            night_hour_from=22,
+            start_date=self.datetime_1.date(),
         )
         self.usage_price = UsagePrice.objects.create(
             nok_pr_kwh=Decimal("0.40"),
@@ -56,9 +52,74 @@ class CostDetailsManagerTestCase(TestCase):
             reduction_factor=Decimal("0.1"),
             start_date=self.datetime_1.date(),
         )
-        self.spot_price = SpotPrice.objects.create(
-            nok_pr_kwh=Decimal("0.95"),
+        self.spot_price_1 = SpotPrice.objects.create(
+            nok_pr_kwh=Decimal("0.55"),
             start_time=self.datetime_1,
             price_area=4,
         )
+        self.spot_price_2 = SpotPrice.objects.create(
+            nok_pr_kwh=Decimal("0.49"),
+            start_time=self.datetime_2,
+            price_area=4,
+        )
+        self.spot_price_3 = SpotPrice.objects.create(
+            nok_pr_kwh=Decimal("1.11"),
+            start_time=self.datetime_3,
+            price_area=4,
+        )
+        self.spot_price_4 = SpotPrice.objects.create(
+            nok_pr_kwh=Decimal("0.67"),
+            start_time=self.datetime_4,
+            price_area=4,
+        )
+        self.energy_details_1 = EnergyDetails.objects.create(
+            charging_session=self.session_alice,
+            energy=Decimal("15.2"),
+            timestamp=self.datetime_1,
+        )
+        self.energy_details_2 = EnergyDetails.objects.create(
+            charging_session=self.session_bert,
+            energy=Decimal("21.8"),
+            timestamp=self.datetime_2,
+        )
+        self.energy_details_3 = EnergyDetails.objects.create(
+            charging_session=self.session_alice,
+            energy=Decimal("32.7"),
+            timestamp=self.datetime_3,
+        )
+        self.energy_details_4 = EnergyDetails.objects.create(
+            charging_session=self.session_bert,
+            energy=Decimal("12.4"),
+            timestamp=self.datetime_4,
+        )
+
+        CostDetails.objects.create(
+            energy_detail=self.energy_details_1,
+            spot_price=self.spot_price_1,
+            grid_price=self.grid_price,
+            usage_price=self.usage_price,
+            spot_price_refund=self.spot_price_refund,
+        )
+        CostDetails.objects.create(
+            energy_detail=self.energy_details_2,
+            spot_price=self.spot_price_2,
+            grid_price=self.grid_price,
+            usage_price=self.usage_price,
+            spot_price_refund=self.spot_price_refund,
+        )
+        CostDetails.objects.create(
+            energy_detail=self.energy_details_3,
+            spot_price=self.spot_price_3,
+            grid_price=self.grid_price,
+            usage_price=self.usage_price,
+            spot_price_refund=self.spot_price_refund,
+        )
+        CostDetails.objects.create(
+            energy_detail=self.energy_details_4,
+            spot_price=self.spot_price_4,
+            grid_price=self.grid_price,
+            usage_price=self.usage_price,
+            spot_price_refund=self.spot_price_refund,
+        )
+
 
