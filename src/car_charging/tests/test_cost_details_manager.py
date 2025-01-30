@@ -122,4 +122,27 @@ class CostDetailsManagerTestCase(TestCase):
             spot_price_refund=self.spot_price_refund,
         )
 
+    def test_name_filter(self):
+        user_full_name = "Alice"
+        cost_details = CostDetails.objects.filter_by_user(user_full_name=user_full_name)
+
+        self.assertEqual(len(cost_details), 2)
+        self.assertEqual(cost_details[0].energy_detail.charging_session.user_full_name, user_full_name)
+        self.assertEqual(cost_details[1].energy_detail.charging_session.user_full_name, user_full_name)
+
+    def test_user_id_filter(self):
+        user_id = self.session_bert.user_id
+        cost_details = CostDetails.objects.filter_by_user(user_id=user_id)
+
+        self.assertEqual(len(cost_details), 2)
+        self.assertEqual(cost_details[0].energy_detail.charging_session.user_id, user_id)
+        self.assertEqual(cost_details[1].energy_detail.charging_session.user_id, user_id)
+
+    def test_date_filter(self):
+        from_date = self.datetime_2
+        to_date = self.datetime_3
+        cost_details = CostDetails.objects.filter_by_date(from_date=from_date, to_date=to_date)
+
+        self.assertEqual(len(cost_details), 1)
+        self.assertEqual(cost_details[0].energy_detail.timestamp.date(), from_date.date())
 
