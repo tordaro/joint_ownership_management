@@ -73,7 +73,8 @@ class CostDetailsManager(models.Manager):
     ) -> list[dict]:
         """Calculate the total cost by each user and month within a time range."""
         queryset = (
-            self.get_queryset.filter_by_user(user_id, user_full_name)
+            self.get_queryset()
+            .filter_by_user(user_id, user_full_name)
             .filter_by_date(from_date, to_date)
             .annotate(month=TruncMonth("timestamp"), year=TruncYear("timestamp"))
             .values("year", "month")
