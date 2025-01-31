@@ -11,7 +11,7 @@ class CostDetailsManagerTestCase(TestCase):
     def setUp(self):
         self.datetime_1 = make_aware(datetime(2025, 1, 1, 10))
         self.datetime_2 = make_aware(datetime(2025, 3, 1, 15))
-        self.datetime_3 = make_aware(datetime(2025, 4, 1, 10))
+        self.datetime_3 = make_aware(datetime(2025, 3, 21, 10))
         self.datetime_4 = make_aware(datetime(2025, 9, 1, 18))
 
         self.session_alice = ChargingSession.objects.create(
@@ -83,12 +83,12 @@ class CostDetailsManagerTestCase(TestCase):
             timestamp=self.datetime_2,
         )
         self.energy_details_3 = EnergyDetails.objects.create(
-            charging_session=self.session_alice,
+            charging_session=self.session_bert,
             energy=Decimal("32.7"),
             timestamp=self.datetime_3,
         )
         self.energy_details_4 = EnergyDetails.objects.create(
-            charging_session=self.session_bert,
+            charging_session=self.session_alice,
             energy=Decimal("12.4"),
             timestamp=self.datetime_4,
         )
@@ -146,7 +146,7 @@ class CostDetailsManagerTestCase(TestCase):
         self.assertEqual(len(cost_details), 1)
         self.assertEqual(cost_details[0].energy_detail.timestamp.date(), from_date.date())
 
-    def test_cost_by_user(self):
+    def test_costs_by_user(self):
         user_full_name = "Alice"
         cost_details = CostDetails.objects.filter(energy_detail__charging_session__user_full_name__icontains=user_full_name)
         sum_energy = sum([cost_detail.energy for cost_detail in cost_details])
@@ -161,18 +161,90 @@ class CostDetailsManagerTestCase(TestCase):
         min_timestamp = min([cost_detail.timestamp for cost_detail in cost_details])
         max_timestamp = max([cost_detail.timestamp for cost_detail in cost_details])
 
-        result = CostDetails.objects.costs_by_user(user_full_name=user_full_name)
+        aggregates = CostDetails.objects.costs_by_user(user_full_name=user_full_name)
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["user"], user_full_name)
-        self.assertEqual(result[0]["energy"], sum_energy)
-        self.assertEqual(result[0]["spot_cost"], sum_spot_cost)
-        self.assertEqual(result[0]["grid_cost"], sum_grid_cost)
-        self.assertEqual(result[0]["usage_cost"], sum_usage_cost)
-        self.assertEqual(result[0]["fund_cost"], sum_fund_cost)
-        self.assertEqual(result[0]["refund"], sum_refund)
-        self.assertEqual(result[0]["total_cost"], sum_total_cost)
-        self.assertAlmostEqual(result[0]["cost_pr_kwh"], cost_pr_kwh, places=6)
-        self.assertEqual(result[0]["charging_sessions"], num_sessions)
-        self.assertEqual(result[0]["min_timestamp"], min_timestamp)
-        self.assertEqual(result[0]["max_timestamp"], max_timestamp)
+        self.assertEqual(len(aggregates), 1)
+        self.assertEqual(aggregates[0]["user"], user_full_name)
+        self.assertEqual(aggregates[0]["energy"], sum_energy)
+        self.assertEqual(aggregates[0]["spot_cost"], sum_spot_cost)
+        self.assertEqual(aggregates[0]["grid_cost"], sum_grid_cost)
+        self.assertEqual(aggregates[0]["usage_cost"], sum_usage_cost)
+        self.assertEqual(aggregates[0]["fund_cost"], sum_fund_cost)
+        self.assertEqual(aggregates[0]["refund"], sum_refund)
+        self.assertEqual(aggregates[0]["total_cost"], sum_total_cost)
+        self.assertAlmostEqual(aggregates[0]["cost_pr_kwh"], cost_pr_kwh, places=6)
+        self.assertEqual(aggregates[0]["charging_sessions"], num_sessions)
+        self.assertEqual(aggregates[0]["min_timestamp"], min_timestamp)
+        self.assertEqual(aggregates[0]["max_timestamp"], max_timestamp)
+
+    def test_costs_by_month(self):
+        from_date = self.datetime_2
+        to_date = self.datetime_4
+        cost_details = CostDetails.objects.filter(energy_detail__timestamp__gte=from_date, energy_detail__timestamp__lt=to_date)
+        sum_energy = sum([cost_detail.energy for cost_detail in cost_details])
+        sum_spot_cost = sum([cost_detail.spot_cost for cost_detail in cost_details])
+        sum_grid_cost = sum([cost_detail.grid_cost for cost_detail in cost_details])
+        sum_usage_cost = sum([cost_detail.usage_cost for cost_detail in cost_details])
+        sum_fund_cost = sum([cost_detail.fund_cost for cost_detail in cost_details])
+        sum_refund = sum([cost_detail.refund for cost_detail in cost_details])
+        sum_total_cost = sum([cost_detail.total_cost for cost_detail in cost_details])
+        cost_pr_kwh = sum_total_cost / sum_energy
+        num_sessions = len({cost_detail.session_id for cost_detail in cost_details})
+        min_timestamp = min([cost_detail.timestamp for cost_detail in cost_details])
+        max_timestamp = max([cost_detail.timestamp for cost_detail in cost_details])
+
+        aggregates = CostDetails.objects.costs_by_month(from_date=from_date, to_date=to_date)
+
+        self.assertEqual(len(aggregates), 1)
+        self.assertEqual(aggregates[0]["year"].year, from_date.year)
+        self.assertEqual(aggregates[0]["month"].month, from_date.month)
+        self.assertEqual(aggregates[0]["energy"], sum_energy)
+        self.assertEqual(aggregates[0]["spot_cost"], sum_spot_cost)
+        self.assertEqual(aggregates[0]["grid_cost"], sum_grid_cost)
+        self.assertEqual(aggregates[0]["usage_cost"], sum_usage_cost)
+        self.assertEqual(aggregates[0]["fund_cost"], sum_fund_cost)
+        self.assertEqual(aggregates[0]["refund"], sum_refund)
+        self.assertEqual(aggregates[0]["total_cost"], sum_total_cost)
+        self.assertAlmostEqual(aggregates[0]["cost_pr_kwh"], cost_pr_kwh, places=6)
+        self.assertEqual(aggregates[0]["charging_sessions"], num_sessions)
+        self.assertEqual(aggregates[0]["min_timestamp"], min_timestamp)
+        self.assertEqual(aggregates[0]["max_timestamp"], max_timestamp)
+
+    def test_costs_by_month_user(self):
+        user_full_name = "Bert"
+        from_date = self.datetime_2
+        to_date = self.datetime_4
+        cost_details = CostDetails.objects.filter(
+            energy_detail__timestamp__gte=from_date,
+            energy_detail__timestamp__lt=to_date,
+            energy_detail__charging_session__user_full_name__icontains=user_full_name,
+        )
+        sum_energy = sum([cost_detail.energy for cost_detail in cost_details])
+        sum_spot_cost = sum([cost_detail.spot_cost for cost_detail in cost_details])
+        sum_grid_cost = sum([cost_detail.grid_cost for cost_detail in cost_details])
+        sum_usage_cost = sum([cost_detail.usage_cost for cost_detail in cost_details])
+        sum_fund_cost = sum([cost_detail.fund_cost for cost_detail in cost_details])
+        sum_refund = sum([cost_detail.refund for cost_detail in cost_details])
+        sum_total_cost = sum([cost_detail.total_cost for cost_detail in cost_details])
+        cost_pr_kwh = sum_total_cost / sum_energy
+        num_sessions = len({cost_detail.session_id for cost_detail in cost_details})
+        min_timestamp = min([cost_detail.timestamp for cost_detail in cost_details])
+        max_timestamp = max([cost_detail.timestamp for cost_detail in cost_details])
+
+        aggregates = CostDetails.objects.costs_by_month_user(from_date=from_date, to_date=to_date, user_full_name=user_full_name)
+
+        self.assertEqual(len(aggregates), 1)
+        self.assertEqual(aggregates[0]["year"].year, from_date.year)
+        self.assertEqual(aggregates[0]["month"].month, from_date.month)
+        self.assertEqual(aggregates[0]["energy"], sum_energy)
+        self.assertEqual(aggregates[0]["spot_cost"], sum_spot_cost)
+        self.assertEqual(aggregates[0]["grid_cost"], sum_grid_cost)
+        self.assertEqual(aggregates[0]["usage_cost"], sum_usage_cost)
+        self.assertEqual(aggregates[0]["fund_cost"], sum_fund_cost)
+        self.assertEqual(aggregates[0]["refund"], sum_refund)
+        self.assertEqual(aggregates[0]["total_cost"], sum_total_cost)
+        self.assertAlmostEqual(aggregates[0]["cost_pr_kwh"], cost_pr_kwh, places=6)
+        self.assertEqual(aggregates[0]["charging_sessions"], num_sessions)
+        self.assertEqual(aggregates[0]["min_timestamp"], min_timestamp)
+        self.assertEqual(aggregates[0]["max_timestamp"], max_timestamp)
+
